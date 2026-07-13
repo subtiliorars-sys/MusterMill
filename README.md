@@ -36,6 +36,7 @@ npm run build
 ## Design
 
 - GDD: [`docs/GDD.md`](docs/GDD.md)
+- **Agent handoff:** [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md) — canonical owner doc for continuing work
 - Branch data: [`data/branch-skins.json`](data/branch-skins.json) (from Mustermate `branch-brands.json`)
 
 ## v0.1
