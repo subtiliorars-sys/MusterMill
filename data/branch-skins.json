@@ -1,0 +1,79 @@
+{
+  "version": 2,
+  "default_slug": "ocp",
+  "free_slug": "ocp",
+  "skins": {
+    "ocp": {
+      "slug": "ocp",
+      "label": "Allied Camo Coalition",
+      "short_label": "ACC",
+      "subtitle": "Generic olive · free forever",
+      "mascot_emoji": "🪖",
+      "premium": false,
+      "colors": { "primary": "#4b5320", "accent": "#c4b581", "hot": "#d4a017", "bg": "#12150f", "panel": "#1a1f14" }
+    },
+    "army": {
+      "slug": "army",
+      "label": "Big Green Machine",
+      "short_label": "Big Green",
+      "subtitle": "HooahHook parody · free",
+      "mascot_emoji": "🪖",
+      "premium": false,
+      "colors": { "primary": "#4b5320", "accent": "#c4b581", "hot": "#d4a017", "bg": "#12150f", "panel": "#1a1f14" }
+    },
+    "navy": {
+      "slug": "navy",
+      "label": "Boat Catfish",
+      "short_label": "Boat Cats",
+      "subtitle": "FleetMate parody · Pack",
+      "mascot_emoji": "⚓",
+      "premium": true,
+      "colors": { "primary": "#001f3f", "accent": "#ffd700", "hot": "#ff4136", "bg": "#0a1628", "panel": "#0f2038" }
+    },
+    "marines": {
+      "slug": "marines",
+      "label": "Crayon Legion",
+      "short_label": "Crayons",
+      "subtitle": "SemperSwipe parody · Pack",
+      "mascot_emoji": "🦅",
+      "premium": true,
+      "colors": { "primary": "#8b0000", "accent": "#ffd700", "hot": "#ff4500", "bg": "#1a0a0a", "panel": "#2a1010" }
+    },
+    "air_force": {
+      "slug": "air_force",
+      "label": "Chair Patrol",
+      "short_label": "Chairs",
+      "subtitle": "ChairForce parody · Pack",
+      "mascot_emoji": "✈️",
+      "premium": true,
+      "colors": { "primary": "#00308f", "accent": "#87ceeb", "hot": "#00bfff", "bg": "#0d1b2a", "panel": "#152238" }
+    },
+    "space_force": {
+      "slug": "space_force",
+      "label": "Orbital Confusion Corps",
+      "short_label": "Orbital",
+      "subtitle": "Orbital Match parody · Pack",
+      "mascot_emoji": "🛰️",
+      "premium": true,
+      "colors": { "primary": "#1a1a2e", "accent": "#e94560", "hot": "#0f3460", "bg": "#0f0f1a", "panel": "#1a1a28" }
+    },
+    "coast_guard": {
+      "slug": "coast_guard",
+      "label": "Puddle Pirates",
+      "short_label": "Pirates",
+      "subtitle": "USCG parody · Pack",
+      "mascot_emoji": "🚤",
+      "premium": true,
+      "colors": { "primary": "#003366", "accent": "#ff6600", "hot": "#00a651", "bg": "#0a1929", "panel": "#0f2438" }
+    },
+    "national_guard": {
+      "slug": "national_guard",
+      "label": "Weekend Warriors",
+      "short_label": "M-Day",
+      "subtitle": "Guard parody · Pack",
+      "mascot_emoji": "🎖️",
+      "premium": true,
+      "colors": { "primary": "#2d5016", "accent": "#f0e68c", "hot": "#cd853f", "bg": "#141a10", "panel": "#1c2418" }
+    }
+  }
+}

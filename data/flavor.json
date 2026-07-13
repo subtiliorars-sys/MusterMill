@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "disclaimer": "Satire only. Not affiliated with the U.S. Department of Defense or any branch. All characters are fictional chibi mascots.",
+  "safety_brief": [
+    "Don't do dumb stuff. Sign here. Initial here.",
+    "Reflective belt at night. Red flags by day.",
+    "Cover on indoors. Feelings off until Specialist rank.",
+    "This is Heritage Muster for unit continuity — not a dating sim.",
+    "Do not eat crayons IRL. In-game Crayon Constitution is satire."
+  ],
+  "universal_tips": [
+    "CIF still has my heart. And my original issue canteen.",
+    "MRE heater skills transfer directly to faster boot camp.",
+    "Someone lost a reflective belt. Nation in crisis.",
+    "Five minutes means an hour in Navy time — timers are honest here.",
+    "S-1 has questions about your manpower forecast.",
+    "Field day: mop bucket compatibility improves spawn odds.",
+    "Safety brief complete. You may now muster irresponsibly.",
+    "Emotional availability: same as my CIF turn-in window — technically exists.",
+    "Relationship status: PCSing emotionally. Geographically optional.",
+    "My therapist said find hobbies. I chose you and the gym at 0500."
+  ],
+  "pair_start": {
+    "universal": [
+      "S-1 approved Heritage Quarters assignment. Paperwork in triplicate.",
+      "Assigning to barracks for unit continuity purposes.",
+      "Legacy Muster initiated. Nation holds breath."
+    ],
+    "army": [
+      "Will share a mop bucket on field day for the right recruit.",
+      "AR 670-1 wrote this pairing. Still in appeals.",
+      "DFAC trauma bonding in progress."
+    ],
+    "navy": [
+      "Not ghosting — comms blackout during muster.",
+      "Liberty starts when the brow lowers. Muster starts now.",
+      "Underway schedule: chaotic. This pairing: slightly less."
+    ],
+    "marines": [
+      "Semper Maybe — Legacy Muster engaged.",
+      "Motivated professional meets motivated professional.",
+      "No crayons until recruit pins Specialist."
+    ],
+    "air_force": [
+      "Strategic Nap Doctrine suspended for muster.",
+      "First date: anything with AC. This counts.",
+      "Beard waiver submitted. Pairing approved anyway."
+    ],
+    "space_force": [
+      "Houston, we have a muster. Please don't make it awkward.",
+      "Mission: space. Location: Heritage Quarters.",
+      "Guardian grooming standard: inherited confusion."
+    ],
+    "coast_guard": [
+      "Not a real branch joke. Real muster though.",
+      "Semper Paratus — for lineage and SAR.",
+      "Orange hi-vis energy in the barracks."
+    ],
+    "national_guard": [
+      "Sorry I missed your text — drill. Muster is on.",
+      "M-Day ready. Date night: subject to orders.",
+      "Drill weekend ghosting is OPORD."
+    ],
+    "ocp": [
+      "Generic camo coalition approves Heritage Quarters.",
+      "Allied Camo Battalion: muster slips incoming.",
+      "OCP palette: olive drab feelings."
+    ]
+  },
+  "birth": {
+    "universal": [
+      "Fresh Muster hatched from a regulation duffel.",
+      "Recruit chibi deployed. Boot camp timer starts.",
+      "New bloodline entry logged. S-1 exhausted."
+    ],
+    "army": [
+      "Another beautiful mistake joins Big Green.",
+      "Hooah-adjacent squeak detected in barracks.",
+      "11B curious? This recruit might be."
+    ],
+    "marines": [
+      "Devil Pup reporting for crayon inspection.",
+      "Oorah — tiny boots on deck.",
+      "Every Marine a rifleman. This one is a squeaker."
+    ],
+    "navy": [
+      "New shipmate can't make a rack yet. Give it time.",
+      "Starboard side recruit. Port side attitude.",
+      "Galley coffee energy: undrinkable. Recruit: adorable."
+    ],
+    "air_force": [
+      "Chair Patrol cadet needs AC immediately.",
+      "BX barber appointment scheduled for 2031.",
+      "Strategically conserving energy until Specialist."
+    ],
+    "ocp": [
+      "ACC recruit mustered. Reflective belt pending.",
+      "Fresh camo blob joins the coalition."
+    ]
+  },
+  "mission_complete": {
+    "universal": [
+      "KP duty complete. Muster slips acquired legally-ish.",
+      "Mess hall survived. Slips deposited.",
+      "CQ log signed. You're free to muster again."
+    ],
+    "army": [
+      "DFAC survived. Slips taste like institutional eggs.",
+      "Field day mop certified. Slips earned."
+    ],
+    "navy": [
+      "Galley watch over. Wi-Fi still down. Slips anyway.",
+      "Port call in 5 minutes (1 hour). Slips collected."
+    ],
+    "marines": [
+      "Field day motivated. Slips acquired with intensity.",
+      "MCMAP not required for KP. Slips still earned."
+    ]
+  },
+  "premium_cta": "Branch Pack — $2.99 unlocks your parody faction skin + 50 field-manual quips. Enable itch demo preview to try all branches."
+}

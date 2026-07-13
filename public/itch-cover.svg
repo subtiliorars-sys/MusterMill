@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="630" height="500" viewBox="0 0 630 500">
+  <rect width="630" height="500" fill="#12150f"/>
+  <rect x="0" y="380" width="630" height="120" fill="#4b5320"/>
+  <text x="315" y="200" text-anchor="middle" font-family="system-ui,sans-serif" font-size="72" fill="#c4b581">>–</text>
+  <text x="315" y="280" text-anchor="middle" font-family="system-ui,sans-serif" font-size="48" font-weight="700" fill="#d4a017">MusterMill</text>
+  <text x="315" y="330" text-anchor="middle" font-family="system-ui,sans-serif" font-size="22" fill="#e8e4d8">Legacy Muster · idle battalion</text>
+  <text x="315" y="450" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" fill="#9a9588">Mustermate Network satire · not DoD affiliated</text>
+</svg>
