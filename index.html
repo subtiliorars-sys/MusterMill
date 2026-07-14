@@ -29,5 +29,27 @@
       </dialog>
     </div>
     <script type="module" src="/src/main.ts"></script>
-  </body>
+  
+    <script>
+    (function () {
+      try {
+        var k = 'mustermill-first-play-tip-v1';
+        if (localStorage.getItem(k) === '1') return;
+        var tip = document.createElement('div');
+        tip.setAttribute('role', 'status');
+        tip.style.cssText = 'position:fixed;left:10px;right:10px;bottom:10px;z-index:40;background:rgba(20,28,16,0.94);color:#d8efc0;padding:10px 12px;font:13px/1.4 system-ui,sans-serif;border:1px solid #3a5530;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+        tip.innerHTML = '<span>First muster? Pair two soldiers, collect slips while idle, then open Faction skin to try branch colors. Satire only.</span>';
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = 'Got it';
+        b.style.cssText = 'background:#3a5530;color:#fff;border:0;padding:5px 9px;cursor:pointer';
+        var d = function () { tip.remove(); try { localStorage.setItem(k, '1'); } catch (e) {} };
+        b.onclick = d;
+        tip.appendChild(b);
+        document.body.appendChild(tip);
+        setTimeout(d, 11000);
+      } catch (e) {}
+    })();
+    </script>
+</body>
 </html>

@@ -4,6 +4,10 @@ Idle incremental spin-off of the **Mustermate Network** — pair chibi soldiers,
 
 **Play:** https://subtiliorars-sys.github.io/MusterMill/
 
+### First-run tip
+
+Open the Play URL (or `npm run dev`), accept the Safety Brief, then pair two idle soldiers and let slips accumulate. Review Faction skin before assuming premium locks — Preview all branches unlocks demos.
+
 ## Play locally
 
 ```bash
