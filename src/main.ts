@@ -17,7 +17,8 @@ import {
   premiumCta,
   randomTip,
 } from './flavor';
-import { clearSave, loadBundle, normalizeGameState, saveBundle } from './storage';
+import { activityLabel, drawCardSprite, drawScene } from './pixel-art';
+import { sceneCaption, sceneSoldiers, soldierActivity } from './visuals';
 import {
   activeStrength,
   advanceGrowth,
@@ -36,6 +37,7 @@ import {
   type GameState,
   type Soldier,
 } from './sim';
+import { clearSave, loadBundle, normalizeGameState, saveBundle } from './storage';
 
 const BRIEF_KEY = 'mustermill-brief-seen-v1';
 const TIP_INTERVAL_MS = 18_000;
@@ -54,6 +56,8 @@ let prevStrength = 0;
 let prevSlips = 0;
 let prevMissionEnd: number | null = null;
 let prevSoldierCount = 0;
+let animFrame = 0;
+const cardCanvases = new Map<number, HTMLCanvasElement>();
 
 const els = {
   title: document.getElementById('title')!,
@@ -79,15 +83,27 @@ const els = {
   safetyBrief: document.getElementById('safety-brief') as HTMLDialogElement,
   briefLines: document.getElementById('brief-lines')!,
   briefDisclaimer: document.getElementById('brief-disclaimer')!,
+  sceneCanvas: document.getElementById('scene-canvas') as HTMLCanvasElement,
+  sceneCaption: document.getElementById('scene-caption')!,
 };
 
-function mascotFor(soldier: Soldier): string {
-  return getBranchSkin(soldier.branch).mascot_emoji;
+function renderScene(): void {
+  animFrame += 1;
+  drawScene(els.sceneCanvas, sceneSoldiers(state.current), animFrame);
+  els.sceneCaption.textContent = sceneCaption(state.current);
+}
+
+function renderCardSprite(canvas: HTMLCanvasElement, soldier: Soldier): void {
+  const activity = soldierActivity(soldier, state.current);
+  drawCardSprite(canvas, soldier.branch, activity, soldier.stage, animFrame + soldier.id);
 }
 
 function stageLabel(s: Soldier): string {
   if (s.pairedUntil) return 'mustering…';
   if (s.onMission) return 'KP duty';
+  const act = soldierActivity(s, state.current);
+  if (act === 'liberty') return 'liberty';
+  if (act === 'patrol') return 'patrol';
   return s.stage;
 }
 
@@ -167,6 +183,7 @@ function render(): void {
   els.deployBtn.title = deployCheck.reason;
 
   els.roster.innerHTML = '';
+  cardCanvases.clear();
   for (const soldier of s.soldiers) {
     const card = document.createElement('button');
     card.type = 'button';
@@ -174,14 +191,47 @@ function render(): void {
     card.disabled = soldier.stage !== 'specialist' || !!soldier.onMission || !!soldier.pairedUntil;
     const pct = growthPct(soldier);
     const traits = truncateTraits(soldier.traits);
-    card.innerHTML = `
-      <span class="emoji">${mascotFor(soldier)}</span>
-      <span class="name" title="${soldier.name}">${soldier.name}</span>
-      <span class="stage">${stageLabel(soldier)}</span>
-      <span class="growth" aria-hidden="true"><span style="width:${pct}%"></span></span>
-      <span class="traits" title="${traits}">${traits}</span>
-      <span class="gen">Gen ${soldier.generation}</span>
-    `;
+    const activity = soldierActivity(soldier, s);
+    const spriteWrap = document.createElement('div');
+    spriteWrap.className = 'sprite-wrap';
+    const canvas = document.createElement('canvas');
+    canvas.className = 'soldier-sprite';
+    canvas.width = 48;
+    canvas.height = 56;
+    canvas.setAttribute('aria-hidden', 'true');
+    renderCardSprite(canvas, soldier);
+    cardCanvases.set(soldier.id, canvas);
+    spriteWrap.appendChild(canvas);
+    const badge = document.createElement('span');
+    badge.className = 'activity-badge';
+    badge.textContent = activityLabel(activity);
+    spriteWrap.appendChild(badge);
+    card.append(spriteWrap);
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.title = soldier.name;
+    name.textContent = soldier.name;
+    card.append(name);
+    const stage = document.createElement('span');
+    stage.className = 'stage';
+    stage.textContent = stageLabel(soldier);
+    card.append(stage);
+    const growth = document.createElement('span');
+    growth.className = 'growth';
+    growth.setAttribute('aria-hidden', 'true');
+    const growthBar = document.createElement('span');
+    growthBar.style.width = `${pct}%`;
+    growth.append(growthBar);
+    card.append(growth);
+    const traitsEl = document.createElement('span');
+    traitsEl.className = 'traits';
+    traitsEl.title = traits;
+    traitsEl.textContent = traits;
+    card.append(traitsEl);
+    const gen = document.createElement('span');
+    gen.className = 'gen';
+    gen.textContent = `Gen ${soldier.generation}`;
+    card.append(gen);
     card.addEventListener('click', () => {
       if (selected.has(soldier.id)) selected.delete(soldier.id);
       else {
@@ -285,6 +335,7 @@ function boot(): void {
   rotateTip();
   updateActionButtons();
   render();
+  renderScene();
 
   prevStrength = activeStrength(state.current);
   prevSlips = Math.floor(state.current.slips);
@@ -391,6 +442,12 @@ function gameLoop(): void {
   state.current = advanceGrowth(state.current, delta);
   state.current = tick(state.current, now);
   detectEvents();
+
+  renderScene();
+  for (const [id, canvas] of cardCanvases) {
+    const soldier = state.current.soldiers.find((s) => s.id === id);
+    if (soldier) renderCardSprite(canvas, soldier);
+  }
 
   if (needsRender(now)) {
     render();

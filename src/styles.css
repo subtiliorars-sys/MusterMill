@@ -227,19 +227,43 @@ h1 {
   background: #2f4f2f;
 }
 
+.scene-panel {
+  padding-bottom: 0.65rem;
+}
+
+.scene-canvas {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto 0.5rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #0d1218;
+}
+
+.scene-caption {
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
 .roster {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
   gap: 0.55rem;
   margin-bottom: 0.65rem;
 }
 
 .soldier {
-  display: grid;
-  grid-template-rows: auto auto auto auto auto auto;
-  gap: 0.1rem;
-  padding: 0.55rem 0.6rem;
-  min-height: 7.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.12rem;
+  padding: 0.5rem 0.55rem 0.55rem;
+  min-height: 9.5rem;
   border: 2px solid var(--border);
   border-radius: 8px;
   background: var(--bg);
@@ -264,9 +288,41 @@ h1 {
   cursor: not-allowed;
 }
 
-.soldier .emoji {
-  font-size: 1.35rem;
-  line-height: 1;
+.sprite-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 58px;
+  margin-bottom: 0.15rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.2rem 0;
+}
+
+.soldier-sprite {
+  display: block;
+  width: 48px;
+  height: 56px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.activity-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--hot);
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .soldier .name {

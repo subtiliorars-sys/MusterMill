@@ -39,6 +39,11 @@ npm run build
 - **Agent handoff:** [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md) — canonical owner doc for continuing work
 - Branch data: [`data/branch-skins.json`](data/branch-skins.json) (from Mustermate `branch-brands.json`)
 
+## v0.3
+
+- **Pixel art chibi soldiers** — branch-tinted sprites on roster cards
+- **Base operations scene** — live diorama: boot camp, barracks, heritage, mess hall, liberty, patrol strip
+
 ## v0.2
 
 - **Deployment prestige** — reset roster, carry bloodline trait at 50%, +10% slip bonus per deploy (max 5)
