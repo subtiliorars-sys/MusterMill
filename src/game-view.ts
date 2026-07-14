@@ -43,10 +43,12 @@ export interface GameViewSoldier {
 }
 
 export interface WorldVignette {
-  kind: 'muster_duffel';
+  kind: 'muster_duffel' | 'deploy_ceremony' | 'confetti';
   x: number;
   y: number;
   age: number;
+  label?: string;
+  color?: string;
 }
 
 export interface GameViewState {
@@ -60,6 +62,7 @@ export interface GameViewState {
     reinforceCost: number;
     reinforceProgress: number;
   };
+  unlocks: { kp: boolean; reinforce: boolean; deploy: boolean };
   tip: string;
   title: string;
   subtitle: string;
@@ -73,17 +76,37 @@ export interface GameViewState {
 const SPRITE_SCALE = 3;
 const HIT_R = 20;
 
-export function defaultButtons(enabled: Record<HudAction, boolean>): HudButton[] {
+const BUTTON_LAYOUT: { id: HudAction; label: string; w: number }[] = [
+  { id: 'skins', label: 'SKINS', w: 52 },
+  { id: 'muster', label: 'MUSTER', w: 72 },
+  { id: 'kp', label: 'KP DUTY', w: 72 },
+  { id: 'reinforce', label: '+REC', w: 58 },
+  { id: 'deploy', label: 'DEPLOY', w: 72 },
+  { id: 'reset', label: 'RST', w: 44 },
+];
+
+export function defaultButtons(
+  enabled: Record<HudAction, boolean>,
+  visible: Record<HudAction, boolean>,
+): HudButton[] {
   const y = BAR_TOP + 4;
   const h = 46;
-  return [
-    { id: 'skins', label: 'SKINS', x: 6, y, w: 52, h, enabled: true },
-    { id: 'muster', label: 'MUSTER', x: 62, y, w: 72, h, enabled: enabled.muster },
-    { id: 'kp', label: 'KP DUTY', x: 138, y, w: 72, h, enabled: enabled.kp },
-    { id: 'reinforce', label: '+REC', x: 214, y, w: 58, h, enabled: enabled.reinforce },
-    { id: 'deploy', label: 'DEPLOY', x: 276, y, w: 72, h, enabled: enabled.deploy },
-    { id: 'reset', label: 'RST', x: 352, y, w: 44, h, enabled: true },
-  ];
+  let x = 6;
+  const out: HudButton[] = [];
+  for (const spec of BUTTON_LAYOUT) {
+    if (!visible[spec.id]) continue;
+    out.push({
+      id: spec.id,
+      label: spec.label,
+      x,
+      y,
+      w: spec.w,
+      h,
+      enabled: enabled[spec.id],
+    });
+    x += spec.w + 4;
+  }
+  return out;
 }
 
 function drawTerrain(ctx: CanvasRenderingContext2D, w: number, frame: number): void {
@@ -162,13 +185,21 @@ function drawWorldBuildings(ctx: CanvasRenderingContext2D, frame: number, vs: Ga
   ctx.globalAlpha = libertyBlink;
   ctx.fillText('LIBERTY', 405, 182);
   ctx.globalAlpha = 1;
-  ctx.fillStyle = '#4a4a50';
-  ctx.fillRect(400, 218, 70, 36);
-  ctx.strokeStyle = '#d4a017';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(404, 222, 62, 28);
-  ctx.fillStyle = '#d4a017';
-  ctx.fillText('DEPLOY', 435, 240);
+  if (vs.unlocks.deploy) {
+    ctx.fillStyle = '#4a4a50';
+    ctx.fillRect(400, 218, 70, 36);
+    ctx.strokeStyle = '#d4a017';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(404, 222, 62, 28);
+    ctx.fillStyle = '#d4a017';
+    ctx.fillText('DEPLOY', 435, 240);
+  } else {
+    ctx.fillStyle = 'rgba(40,40,45,0.55)';
+    ctx.fillRect(400, 218, 70, 36);
+    ctx.fillStyle = 'rgba(100,100,110,0.45)';
+    ctx.font = '5px monospace';
+    ctx.fillText('GEN 3', 435, 238);
+  }
 
   drawBuildingHighlights(ctx, vs);
 }
@@ -178,9 +209,9 @@ function buildingHighlight(b: BuildingHit, vs: GameViewState): boolean {
     case 'muster':
       return vs.selected.size === 2;
     case 'kp':
-      return vs.buttons.find((x) => x.id === 'kp')?.enabled ?? false;
+      return vs.unlocks.kp && (vs.buttons.find((x) => x.id === 'kp')?.enabled ?? false);
     case 'deploy':
-      return vs.deployReady;
+      return vs.unlocks.deploy && vs.deployReady;
     default:
       return false;
   }
@@ -262,9 +293,33 @@ function drawMusterHearts(ctx: CanvasRenderingContext2D, soldiers: GameViewSoldi
   ctx.fillRect(cx + s, cy - s * 0.5, s * 2, s * 2);
 }
 
+function drawDeployPlane(ctx: CanvasRenderingContext2D, x: number, y: number, age: number, label: string): void {
+  const slide = Math.min(age * 1.2, 90) - 45;
+  const px = x + slide;
+  const py = y - 28 + Math.sin(age * 0.08) * 3;
+  ctx.fillStyle = '#5a6070';
+  ctx.fillRect(px - 18, py, 36, 8);
+  ctx.fillRect(px - 6, py - 6, 12, 6);
+  ctx.fillRect(px + 10, py + 2, 10, 4);
+  ctx.fillStyle = '#d4a017';
+  ctx.font = '6px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(label.slice(0, 14), px, py - 10);
+}
+
+function drawConfetti(ctx: CanvasRenderingContext2D, x: number, y: number, age: number, color: string): void {
+  const fall = age * 1.4;
+  const drift = Math.sin(age * 0.2 + x) * 12;
+  ctx.fillStyle = color;
+  ctx.fillRect(x + drift, y + fall, 3, 3);
+  ctx.fillRect(x - drift * 0.5, y + fall * 0.7, 2, 2);
+}
+
 function drawVignettes(ctx: CanvasRenderingContext2D, vignettes: WorldVignette[]): void {
   for (const v of vignettes) {
     if (v.kind === 'muster_duffel') drawDuffel(ctx, v.x, v.y, v.age);
+    if (v.kind === 'deploy_ceremony') drawDeployPlane(ctx, v.x, v.y, v.age, v.label ?? 'DEPLOY');
+    if (v.kind === 'confetti') drawConfetti(ctx, v.x, v.y, v.age, v.color ?? '#d4a017');
   }
 }
 

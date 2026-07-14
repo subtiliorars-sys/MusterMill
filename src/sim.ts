@@ -49,6 +49,8 @@ export interface GameState {
   deployments: number;
   bloodlineTrait: TraitName | null;
   bloodlineStrength: number;
+  uiProgress?: { pairsCompleted: number; kpRunsCompleted: number };
+  milestonesSeen?: string[];
 }
 
 export const MAX_SLOTS = 10;

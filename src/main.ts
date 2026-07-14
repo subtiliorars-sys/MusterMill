@@ -50,6 +50,7 @@ import {
 } from './sim';
 import { clearSave, loadBundle, normalizeGameState, saveBundle } from './storage';
 import { soldierActivity } from './visuals';
+import { computeUiUnlocks, hudVisibility, normalizeUiProgress, withUiProgress } from './ui-unlocks';
 import type { BuildingHit, WorldEntity } from './world-map';
 import { ZONES } from './world-map';
 
@@ -69,10 +70,12 @@ let toastTimer: ReturnType<typeof setTimeout> | null = null;
 let prevSoldierCount = 0;
 let prevSlips = 0;
 let prevMissionEnd: number | null = null;
+let prevLineage = 0;
 let currentTip = '';
 const worldEntities = new Map<number, WorldEntity>();
 const vignettes: WorldVignette[] = [];
 const VIGNETTE_MAX_AGE = 120;
+const DEPLOY_VIGNETTE_MAX_AGE = 160;
 
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const toast = document.getElementById('toast')!;
@@ -106,15 +109,20 @@ function buildViewState(): GameViewState {
   const deployCheck = canPrestige(s);
   const onMission = !!(s.missionEndsAt && Date.now() < s.missionEndsAt);
   const missionLeft = onMission ? Math.ceil((s.missionEndsAt! - Date.now()) / 1000) : null;
+  const unlocks = computeUiUnlocks(s);
+  const visible = hudVisibility(unlocks);
 
-  const buttons = defaultButtons({
-    skins: true,
-    muster: selected.size === 2,
-    kp: !onMission,
-    reinforce: s.slips >= REINFORCEMENT_COST && s.soldiers.length < 10,
-    deploy: deployCheck.ok,
-    reset: true,
-  });
+  const buttons = defaultButtons(
+    {
+      skins: true,
+      muster: selected.size === 2,
+      kp: unlocks.kp && !onMission,
+      reinforce: unlocks.reinforce && s.slips >= REINFORCEMENT_COST && s.soldiers.length < 10,
+      deploy: unlocks.deploy && deployCheck.ok,
+      reset: true,
+    },
+    visible,
+  );
 
   const manualOn = isBranchUnlocked(branchSlug, demoUnlock) && branchSlug !== 'ocp';
   if (!currentTip) currentTip = randomTip(branchSlug, manualOn);
@@ -148,8 +156,33 @@ function buildViewState(): GameViewState {
     missionLeft,
     deployReady: deployCheck.ok,
     kpActive: onMission,
+    unlocks,
     vignettes: vignettes.map((v) => ({ ...v })),
   };
+}
+
+function spawnConfetti(): void {
+  const colors = ['#d4a017', '#e94560', '#87ceeb', '#9ab878', '#c4b581'];
+  for (let i = 0; i < 14; i++) {
+    vignettes.push({
+      kind: 'confetti',
+      x: 40 + i * 30,
+      y: 50 + (i % 4) * 6,
+      age: i * 2,
+      color: colors[i % colors.length]!,
+    });
+  }
+}
+
+function spawnDeployCeremony(trait: string): void {
+  const pad = ZONES.find((z) => z.id === 'deploy_pad');
+  vignettes.push({
+    kind: 'deploy_ceremony',
+    x: pad?.x ?? 430,
+    y: pad?.y ?? 235,
+    age: 0,
+    label: trait,
+  });
 }
 
 function spawnMusterVignette(): void {
@@ -165,8 +198,17 @@ function spawnMusterVignette(): void {
 function tickVignettes(): void {
   for (let i = vignettes.length - 1; i >= 0; i--) {
     vignettes[i]!.age += 1;
-    if (vignettes[i]!.age > VIGNETTE_MAX_AGE) vignettes.splice(i, 1);
+    const max = vignettes[i]!.kind === 'deploy_ceremony' ? DEPLOY_VIGNETTE_MAX_AGE : VIGNETTE_MAX_AGE;
+    if (vignettes[i]!.age > max) vignettes.splice(i, 1);
   }
+}
+
+function markMilestone(id: string, message: string): void {
+  const seen = state.current.milestonesSeen ?? [];
+  if (seen.includes(id)) return;
+  state.current = { ...state.current, milestonesSeen: [...seen, id] };
+  showToast(message, 5000);
+  spawnConfetti();
 }
 
 function renderBranchPicker(): void {
@@ -205,13 +247,42 @@ function detectEvents(): void {
   const s = state.current;
   const strength = activeStrength(s);
   const slips = Math.floor(s.slips);
-  if (strength > prevSoldierCount && prevSoldierCount > 0) showToast(birthMessage(branchSlug));
-  if (slips > prevSlips && prevMissionEnd !== null && s.missionEndsAt === null) {
-    showToast(missionCompleteMessage(branchSlug));
+  const lineage = lineageDepth(s);
+  const unlocksBefore = computeUiUnlocks(s);
+
+  if (strength > prevSoldierCount && prevSoldierCount > 0) {
+    const newest = s.soldiers.reduce((a, b) => (b.id > a.id ? b : a));
+    if (newest.stage === 'recruit') {
+      const prog = normalizeUiProgress(s);
+      state.current = withUiProgress(s, { pairsCompleted: prog.pairsCompleted + 1 });
+      showToast(birthMessage(branchSlug));
+      if (computeUiUnlocks(state.current).kp && !unlocksBefore.kp) {
+        showToast('KP DUTY unlocked — tap Mess Hall.');
+      }
+    }
   }
+
+  if (slips > prevSlips && prevMissionEnd !== null && s.missionEndsAt === null) {
+    const prog = normalizeUiProgress(state.current);
+    state.current = withUiProgress(state.current, { kpRunsCompleted: prog.kpRunsCompleted + 1 });
+    showToast(missionCompleteMessage(branchSlug));
+    if (computeUiUnlocks(state.current).reinforce && !unlocksBefore.reinforce) {
+      showToast('+REC unlocked — hoard 40 slips.');
+    }
+  }
+
+  if (lineage >= 3 && prevLineage < 3) {
+    showToast('DEPLOY PAD unlocked at generation 3.');
+  }
+
+  if (lineage >= 3) markMilestone('gen3', 'Milestone: Generation 3 lineage.');
+  if (strength >= 10) markMilestone('roster10', 'Milestone: Full roster (10 soldiers).');
+  if (s.deployments >= 1) markMilestone('first_deploy', 'Milestone: First deployment complete.');
+
   prevSlips = slips;
   prevMissionEnd = s.missionEndsAt;
   prevSoldierCount = strength;
+  prevLineage = lineage;
 }
 
 function tapSoldier(id: number): void {
@@ -273,6 +344,7 @@ function handleAction(action: HudAction): void {
       }
       const trait = pickBloodlineTrait(state.current);
       if (!confirm(`Deploy battalion?\n\nReset roster. Keep ${trait} at 50%.\n+10% slip bonus.`)) return;
+      spawnDeployCeremony(trait);
       state.current = prestige(state.current, branchSlug);
       selected.clear();
       worldEntities.clear();
@@ -295,6 +367,7 @@ function handleAction(action: HudAction): void {
 }
 
 function handleBuilding(building: BuildingHit): void {
+  const unlocks = computeUiUnlocks(state.current);
   switch (building.action) {
     case 'muster':
       if (selected.size !== 2) {
@@ -304,9 +377,17 @@ function handleBuilding(building: BuildingHit): void {
       handleAction('muster');
       break;
     case 'kp':
+      if (!unlocks.kp) {
+        showToast('Complete a Legacy Muster first.');
+        return;
+      }
       handleAction('kp');
       break;
     case 'deploy':
+      if (!unlocks.deploy) {
+        showToast('Reach generation 3 to unlock Deploy Pad.');
+        return;
+      }
       handleAction('deploy');
       break;
     case 'hint':
@@ -361,6 +442,17 @@ function showSafetyBrief(): void {
   safetyBrief.addEventListener('close', () => localStorage.setItem(BRIEF_KEY, '1'), { once: true });
 }
 
+function showAwayRecap(savedAt: number): void {
+  const away = Date.now() - savedAt;
+  if (away < 60_000) return;
+  const mins = Math.floor(away / 60_000);
+  const label = mins < 60 ? `${mins}m` : `${Math.floor(mins / 60)}h`;
+  setTimeout(
+    () => showToast(`While away (${label}): battalion held position. +0 slips (no passive KP).`, 5500),
+    900,
+  );
+}
+
 function boot(): void {
   demoUnlockEl.checked = demoUnlock;
   const saved = loadBundle();
@@ -376,11 +468,18 @@ function boot(): void {
         branch: (s as Soldier).branch ?? branchSlug,
       })),
     });
+    showAwayRecap(saved.savedAt);
+  } else {
+    setTimeout(
+      () => showToast('Tap two specialists on the base, then MUSTER.', 6000),
+      1400,
+    );
   }
   activeSkin = applyBranchTheme(branchSlug);
   prevSoldierCount = activeStrength(state.current);
   prevSlips = Math.floor(state.current.slips);
   prevMissionEnd = state.current.missionEndsAt;
+  prevLineage = lineageDepth(state.current);
   showSafetyBrief();
 }
 

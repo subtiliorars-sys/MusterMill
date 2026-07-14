@@ -67,7 +67,26 @@ Player fantasy: *"I run the most unhinged battalion on a tiny pixel base."*
 
 ---
 
-## 5. v0.6 compliance audit (vs fleet kernel)
+## 5. v0.7 compliance audit (vs fleet kernel)
+
+| Kernel principle | v0.7 status | Notes |
+|------------------|-------------|-------|
+| Watch layer first | ✅ Strong | v0.5–v0.6 visuals |
+| Loop legible in 5s | ✅ | Tutorial toast + progressive ribbon |
+| Primary currency visible | ✅ | Compact SLIPS |
+| Production rate visible | ✅ | KP strip |
+| Instant feedback | ✅ | Unlock toasts + milestones |
+| Affordability obvious | ✅ | +REC bar |
+| Progressive disclosure | ✅ | KP → +REC → DEPLOY unlock chain |
+| No core-loop scroll | ✅ | Full viewport |
+| Prestige ceremony | ✅ | Plane vignette + trait label |
+| Return hook | ✅ | Honest offline recap |
+| Touch targets | ✅ | Dynamic ribbon reflow |
+| Identity monetization | ✅ | Branch skins |
+
+**Score:** 12/12 — fleet kernel complete for MVP UI bar
+
+## 5b. v0.6 compliance audit (archived)
 
 | Kernel principle | v0.6 status | Notes |
 |------------------|-------------|-------|
@@ -147,17 +166,13 @@ Priority order from idle genre conventions:
 6. ~~**+REC afford bar**~~ — fill toward 40 slips on +REC button
 7. ~~**Number abbrev**~~ — 1.2K slips at scale
 
-### P2 — Progressive disclosure
-8. **Session unlock order:**
-   - Start: tap-two-soldiers tutorial toast only
-   - After first muster: show KP DUTY
-   - After first KP complete: show +REC
-   - Lineage ≥3: DEPLOY button appears (hidden before)
+### P2 — Progressive disclosure ✅ v0.7
+8. ~~**Session unlock order**~~ — KP after first muster · +REC after first KP · DEPLOY at gen 3
 
-### P3 — Return & prestige juice
-9. **Offline recap** — "While away: +0 slips (session clock)" — honest for web
-10. **Deploy ceremony** — plane silhouette + bloodline trait banner on pad
-11. **Milestone popups** — Gen 3, first prestige, 10 soldiers (pixel confetti)
+### P3 — Return & prestige juice ✅ v0.7
+9. ~~**Offline recap**~~ — honest away toast on load
+10. ~~**Deploy ceremony**~~ — plane silhouette + trait banner on pad
+11. ~~**Milestone popups**~~ — Gen 3, roster 10, first deploy + confetti
 
 ### P4 — Depth (Melvor lane, only if content warrants)
 12. **Building tree panel** — slide-over, not main view (GDD v0.3 buildings)

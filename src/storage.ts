@@ -1,5 +1,6 @@
 import type { GameState } from './sim';
 import { BLOODLINE_CARRY_DEFAULT } from './sim';
+import { normalizeUiProgress } from './ui-unlocks';
 
 const SAVE_KEY = 'mustermill-save-v2';
 
@@ -11,7 +12,7 @@ export interface PersistedBundle {
 }
 
 export function normalizeGameState(raw: GameState): GameState {
-  return {
+  const base = {
     ...raw,
     deployments: raw.deployments ?? 0,
     bloodlineTrait: raw.bloodlineTrait ?? null,
@@ -20,7 +21,9 @@ export function normalizeGameState(raw: GameState): GameState {
       ...s,
       weakenedTraits: s.weakenedTraits ?? [],
     })),
+    milestonesSeen: raw.milestonesSeen ?? [],
   };
+  return { ...base, uiProgress: normalizeUiProgress(base) };
 }
 
 export interface PersistedBundle {
