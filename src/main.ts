@@ -66,6 +66,7 @@ let lastTick = Date.now();
 let lastSaveAt = 0;
 let lastTipAt = 0;
 let animFrame = 0;
+let tabHidden = false;
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
 let prevSoldierCount = 0;
 let prevSlips = 0;
@@ -485,6 +486,11 @@ function boot(): void {
 
 function gameLoop(): void {
   const now = Date.now();
+  if (tabHidden) {
+    lastTick = now;
+    requestAnimationFrame(gameLoop);
+    return;
+  }
   const delta = now - lastTick;
   lastTick = now;
   animFrame += 1;
@@ -507,6 +513,17 @@ function gameLoop(): void {
 
   requestAnimationFrame(gameLoop);
 }
+
+document.addEventListener('visibilitychange', () => {
+  tabHidden = document.hidden;
+  if (tabHidden) {
+    const t = Date.now();
+    lastSaveAt = t;
+    saveBundle({ game: state.current, branchSlug, demoUnlock, savedAt: t });
+    return;
+  }
+  lastTick = Date.now();
+});
 
 boot();
 requestAnimationFrame(gameLoop);
