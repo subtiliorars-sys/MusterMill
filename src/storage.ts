@@ -26,13 +26,6 @@ export function normalizeGameState(raw: GameState): GameState {
   return { ...base, uiProgress: normalizeUiProgress(base) };
 }
 
-export interface PersistedBundle {
-  game: GameState;
-  branchSlug: string;
-  demoUnlock: boolean;
-  savedAt: number;
-}
-
 export function loadBundle(): PersistedBundle | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
