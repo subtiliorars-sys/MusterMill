@@ -1,4 +1,5 @@
 import type { BranchSlug } from './sim';
+import { formatCompact } from './format';
 import {
   drawSprite,
   paletteFor,
@@ -53,6 +54,12 @@ export interface GameViewState {
   selected: Set<number>;
   frame: number;
   stats: { strength: number; slips: number; lineage: number; deploys: number; slipPct: number };
+  economics: {
+    kpPayout: number;
+    kpHeadcount: number;
+    reinforceCost: number;
+    reinforceProgress: number;
+  };
   tip: string;
   title: string;
   subtitle: string;
@@ -277,19 +284,40 @@ function drawTopHud(ctx: CanvasRenderingContext2D, w: number, vs: GameViewState)
   ctx.fillText(vs.subtitle.slice(0, 28), 6, 22);
 
   const s = vs.stats;
+  const slipsLabel = formatCompact(s.slips);
   ctx.textAlign = 'right';
   ctx.fillStyle = '#d4a017';
   ctx.fillText(
-    `STR ${s.strength}  SLIPS ${s.slips}  GEN ${s.lineage}  D${s.deploys}  +${s.slipPct}%`,
+    `STR ${s.strength}  SLIPS ${slipsLabel}  GEN ${s.lineage}  D${s.deploys}  +${s.slipPct}%`,
     w - 6,
-    16,
+    14,
   );
+
+  const econ = vs.economics;
+  ctx.font = '7px monospace';
+  if (vs.missionLeft !== null) {
+    ctx.fillStyle = '#87ceeb';
+    ctx.fillText(
+      `KP ${vs.missionLeft}s  +${formatCompact(econ.kpPayout)} slips (${econ.kpHeadcount})`,
+      w - 6,
+      24,
+    );
+  } else if (econ.kpHeadcount > 0) {
+    ctx.fillStyle = '#9ab878';
+    ctx.fillText(
+      `+${formatCompact(econ.kpPayout)} slips/KP  (${econ.kpHeadcount} ready)`,
+      w - 6,
+      24,
+    );
+  } else {
+    ctx.fillStyle = '#6a6858';
+    ctx.fillText('+0 slips/KP  (nobody ready)', w - 6, 24);
+  }
 
   ctx.textAlign = 'center';
   ctx.fillStyle = '#8a9580';
-  ctx.font = '7px monospace';
-  const tip = vs.tip.length > 58 ? vs.tip.slice(0, 56) + '…' : vs.tip;
-  ctx.fillText(tip, w / 2, 26);
+  const tip = vs.tip.length > 52 ? vs.tip.slice(0, 50) + '…' : vs.tip;
+  ctx.fillText(tip, w / 2, 34);
 }
 
 function drawActionBar(ctx: CanvasRenderingContext2D, w: number, vs: GameViewState): void {
@@ -299,17 +327,39 @@ function drawActionBar(ctx: CanvasRenderingContext2D, w: number, vs: GameViewSta
   ctx.fillRect(0, BAR_TOP, w, 2);
 
   for (const btn of vs.buttons) {
+    const reinforce = btn.id === 'reinforce';
+    const recPct = reinforce ? Math.min(1, vs.economics.reinforceProgress) : 0;
+    const recReady = reinforce && btn.enabled;
+    const recNear = reinforce && recPct >= 0.75 && !recReady;
+
     ctx.fillStyle = btn.enabled ? '#4b5320' : '#2a3020';
     if (btn.id === 'deploy' && btn.enabled) ctx.fillStyle = '#8a6a18';
     if (btn.id === 'muster' && vs.selected.size === 2) ctx.fillStyle = '#6a7a28';
+    if (recReady) ctx.fillStyle = '#5a7a28';
+    if (recNear) ctx.fillStyle = '#3a5028';
     ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
+
+    if (reinforce) {
+      ctx.fillStyle = '#1a2018';
+      ctx.fillRect(btn.x + 3, btn.y + btn.h - 8, btn.w - 6, 5);
+      ctx.fillStyle = recReady ? '#7aaa40' : recNear ? '#5a8a30' : '#3a5a22';
+      if (recPct > 0) {
+        ctx.fillRect(btn.x + 3, btn.y + btn.h - 8, Math.max(2, (btn.w - 6) * recPct), 5);
+      }
+    }
+
     ctx.strokeStyle = btn.enabled ? '#c4b581' : '#3a4030';
-    ctx.lineWidth = 1;
+    if (recReady || recNear) ctx.strokeStyle = '#d4a017';
+    ctx.lineWidth = recReady ? 2 : 1;
     ctx.strokeRect(btn.x + 0.5, btn.y + 0.5, btn.w - 1, btn.h - 1);
     ctx.font = 'bold 8px monospace';
     ctx.fillStyle = btn.enabled ? '#f0ead8' : '#6a6858';
     ctx.textAlign = 'center';
-    ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2 + 3);
+    const label =
+      reinforce && !recReady
+        ? `${btn.label} ${formatCompact(vs.stats.slips)}/${vs.economics.reinforceCost}`
+        : btn.label;
+    ctx.fillText(label, btn.x + btn.w / 2, btn.y + btn.h / 2 + (reinforce ? 0 : 3));
   }
 
   const sel = vs.selected.size;
@@ -317,10 +367,6 @@ function drawActionBar(ctx: CanvasRenderingContext2D, w: number, vs: GameViewSta
   ctx.font = '7px monospace';
   ctx.fillStyle = '#d4a017';
   ctx.fillText(sel ? `${sel}/2 selected` : 'Tap specialists', 400, BAR_TOP + 14);
-  if (vs.missionLeft !== null) {
-    ctx.fillStyle = '#87ceeb';
-    ctx.fillText(`KP ${vs.missionLeft}s`, 400, BAR_TOP + 26);
-  }
 }
 
 export function updateWorldEntities(

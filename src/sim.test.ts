@@ -4,6 +4,7 @@ import {
   canPair,
   canPrestige,
   createInitialState,
+  estimateKpPayout,
   lineageDepth,
   prestige,
   slipMultiplier,
@@ -36,8 +37,15 @@ describe('MusterMill sim', () => {
     let s = createInitialState();
     const t0 = 1_000_000;
     s = startMission(s, t0);
+    const expected = estimateKpPayout(s, t0);
     s = tick(s, t0 + 9000);
+    expect(s.slips).toBe(expected);
     expect(s.slips).toBeGreaterThan(0);
+  });
+
+  it('estimates KP payout from eligible headcount', () => {
+    const s = createInitialState();
+    expect(estimateKpPayout(s)).toBe(26);
   });
 
   it('spawns recruit after pair timer', () => {

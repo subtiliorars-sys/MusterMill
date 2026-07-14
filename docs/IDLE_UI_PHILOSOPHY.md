@@ -67,7 +67,26 @@ Player fantasy: *"I run the most unhinged battalion on a tiny pixel base."*
 
 ---
 
-## 5. v0.5 compliance audit (vs fleet kernel)
+## 5. v0.6 compliance audit (vs fleet kernel)
+
+| Kernel principle | v0.6 status | Notes |
+|------------------|-------------|-------|
+| Watch layer first | ✅ Strong | v0.5 soldiers, vignettes, KP decor |
+| Loop legible in 5s | ⚠️ Partial | Building tap hints + production strip help |
+| Primary currency visible | ✅ | SLIPS in top HUD (compact format) |
+| Production rate visible | ✅ | `+N slips/KP` and in-mission countdown |
+| Instant feedback | ✅ | Toasts, selection ring, building highlights |
+| Affordability obvious | ✅ | +REC progress bar + gold border near 40 |
+| Progressive disclosure | ❌ Gap | All buttons visible session 1 (P2) |
+| No core-loop scroll | ✅ | Full viewport |
+| Prestige ceremony | ⚠️ Partial | Confirm dialog; deploy pad tappable (P3) |
+| Return hook | ❌ Gap | No offline recap (P3) |
+| Touch targets | ✅ | Buildings + ribbon |
+| Identity monetization | ✅ | Branch skins |
+
+**Score:** 9/12 strong · 2 partial · 1 gap → **v0.7 targets P2 disclosure**
+
+## 5a. v0.5 compliance audit (archived)
 
 | Kernel principle | v0.5 status | Notes |
 |------------------|-------------|-------|
@@ -123,10 +142,10 @@ Priority order from idle genre conventions:
 3. ~~**Muster vignette**~~ — two soldiers + tiny duffel spawn pixel anim at Heritage
 4. ~~**KP potato steam + scrub sprite**~~ — mess hall activity more readable
 
-### P1 — Cookie Clicker economics UX
-5. **Production strip** — `+12 slips/KP run` · `KP 42s` under stats
-6. **+REC afford bar** — fill toward 40 slips (Phaser idle tutorial pattern)
-7. **Number abbrev** — 1.2K slips at scale
+### P1 — Cookie Clicker economics UX ✅ v0.6
+5. ~~**Production strip**~~ — `+26 slips/KP` · `KP 42s` in top HUD
+6. ~~**+REC afford bar**~~ — fill toward 40 slips on +REC button
+7. ~~**Number abbrev**~~ — 1.2K slips at scale
 
 ### P2 — Progressive disclosure
 8. **Session unlock order:**

@@ -335,3 +335,26 @@ export function activeStrength(state: GameState): number {
 export function lineageDepth(state: GameState): number {
   return state.soldiers.reduce((max, s) => Math.max(max, s.generation), 0);
 }
+
+export function kpEligibleSoldiers(state: GameState): Soldier[] {
+  return state.soldiers.filter(
+    (s) => (s.stage === 'private' || s.stage === 'specialist') && !s.onMission && !s.pairedUntil,
+  );
+}
+
+/** Expected slips from the next (or in-flight) KP run — mirrors `tick` payout. */
+export function estimateKpPayout(state: GameState, now = Date.now()): number {
+  const onMission = !!(state.missionEndsAt && now < state.missionEndsAt);
+  const missionIds = onMission
+    ? state.missionSoldierIds
+    : kpEligibleSoldiers(state).map((s) => s.id);
+  if (!missionIds.length) return 0;
+
+  const crew = state.soldiers.filter((s) => missionIds.includes(s.id));
+  const bonus = crew.reduce(
+    (sum, s) => sum + (s.traits.includes('11B Bloodline') ? traitStrength(s, '11B Bloodline', state) : 0),
+    0,
+  );
+  const raw = missionIds.length * BASE_KP_PAYOUT + bonus * 2;
+  return Math.floor(raw * slipMultiplier(state));
+}

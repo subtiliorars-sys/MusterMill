@@ -35,6 +35,8 @@ import {
   buyReinforcement,
   canPrestige,
   createInitialState,
+  estimateKpPayout,
+  kpEligibleSoldiers,
   lineageDepth,
   pickBloodlineTrait,
   prestige,
@@ -117,16 +119,27 @@ function buildViewState(): GameViewState {
   const manualOn = isBranchUnlocked(branchSlug, demoUnlock) && branchSlug !== 'ocp';
   if (!currentTip) currentTip = randomTip(branchSlug, manualOn);
 
+  const kpHeadcount = onMission
+    ? s.missionSoldierIds.length
+    : kpEligibleSoldiers(s).length;
+  const slips = Math.floor(s.slips);
+
   return {
     soldiers: viewSoldiers(),
     selected: new Set(selected),
     frame: animFrame,
     stats: {
       strength: activeStrength(s),
-      slips: Math.floor(s.slips),
+      slips,
       lineage: lineageDepth(s),
       deploys: s.deployments,
       slipPct: Math.round((slipMultiplier(s) - 1) * 100),
+    },
+    economics: {
+      kpPayout: estimateKpPayout(s),
+      kpHeadcount,
+      reinforceCost: REINFORCEMENT_COST,
+      reinforceProgress: Math.min(1, slips / REINFORCEMENT_COST),
     },
     tip: currentTip,
     title: `MusterMill · ${activeSkin.label}`,

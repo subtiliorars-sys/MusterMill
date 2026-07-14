@@ -1,8 +1,8 @@
 import type { SoldierActivity } from './pixel-art';
 
-export const WORLD_TOP = 30;
+export const WORLD_TOP = 38;
 export const WORLD_BOTTOM = 262;
-export const HUD_H = 30;
+export const HUD_H = 38;
 export const BAR_TOP = 266;
 
 export type BuildingAction = 'muster' | 'kp' | 'deploy' | 'hint';
