@@ -1,55 +1,53 @@
-# Agent handoff — MusterMill (canonical owner: other Cursor instance)
+# Agent handoff — MusterMill
 
-**You own this repo.** Do not scaffold a second idle game elsewhere.
+**Canonical repo:** `~/projects/claude/MusterMill/` · https://github.com/subtiliorars-sys/MusterMill
 
-## Paths
+## Design docs (read before UI work)
 
-| What | Where |
-|------|--------|
-| Code | `~/projects/claude/MusterMill/` |
-| GitHub | https://github.com/subtiliorars-sys/MusterMill (private) |
-| GDD | `docs/GDD.md` |
-| itch paste | `docs/ITCH_PAGE_COPY.md` |
-| itch zip | `npm run build:itch` → `dist/mustermill-itch.zip` |
-| Mustermate flavor | `../Mustermate/packages/shared/data/branch-brands.json` |
+| Doc | Purpose |
+|-----|---------|
+| `docs/GDD.md` | Mechanics, monetization, guardrails |
+| `docs/IDLE_UI_PHILOSOPHY.md` | **UI canon** — base-sim viewport, v0.4 audit, v0.5 roadmap |
+| `docs/ITCH_PAGE_COPY.md` | itch paste |
+| `docs/ITCH_UPLOAD.md` | butler / manual upload |
+| Fleet `agent-corps/docs/IDLE_INCREMENTAL_UI_PHILOSOPHY.md` | Cross-game idle UI kernel |
+
+**Do not** rebuild as scrollable HTML panels — genre research + fleet doc forbid it for core loop.
 
 ## Commands
 
 ```bash
 cd ~/projects/claude/MusterMill
-npm install
-npm run dev          # localhost:5173
+npm install && npm run dev    # localhost:5173
 npm test && npm run build
-npm run build:itch   # itch upload zip
+bash scripts/deploy-pages.sh  # GitHub Pages
+npm run build:itch            # dist/mustermill-itch.zip
 ```
 
-## What's done (v0.1)
+## Shipped through v0.4
 
-- Playable loop: Legacy Muster, boot camp growth, KP idle, reinforcements (40 slips)
-- 8 parody branch skins (ACC + Big Green free; packs premium in prod, demo unlock on itch)
-- `data/flavor.json` + safety brief + rotating tips + toasts
-- localStorage save, `?demo=0` for premium gate test
-- GitHub Pages workflow (`.github/workflows/pages.yml`) — enable Pages in repo Settings if not live
+- Playable loop: Legacy Muster, boot camp, KP, reinforcements, prestige deploy
+- Fullscreen canvas base map (480×320), walking pixel soldiers, patrol loop
+- Canvas command ribbon: SKINS / MUSTER / KP / +REC / DEPLOY / RST
+- Tap soldiers on map to select; no roster scroll
+- Branch skins + Field Manual quips (`npm run import:quips`)
+- Live: https://subtiliorars-sys.github.io/MusterMill/
 
-## Your next tasks (priority order)
+## Next UI tasks (from `IDLE_UI_PHILOSOPHY.md` §6)
 
-1. **itch publish** — upload zip; paste `docs/ITCH_PAGE_COPY.md`; export `public/itch-cover.svg` → 630×500 PNG
-2. **GitHub Pages** — confirm workflow green; use Pages URL in itch "Embed" or devlog
-3. **v0.2 prestige** — see GDD deployment rule; skippable safety brief on prestige
-4. **Field Manual** — unlockable quip index; branch pack = more entries from `branch-brands.json`
-5. **Real premium gate** — replace demo checkbox with itch purchase flag when ready
+1. **P0** — Tap buildings as actions; bigger soldiers; muster/KP vignettes
+2. **P1** — Production rate in HUD; +REC affordance bar; number abbrev
+3. **P2** — Progressive disclosure (unlock KP → +REC → DEPLOY)
+4. **P3** — Deploy pad ceremony; milestone popups
+
+## Next non-UI tasks
+
+- itch upload (`docs/ITCH_UPLOAD.md`) — needs `butler login`
+- Real premium gate (replace demo checkbox)
 
 ## Do not
 
-- Create duplicate repo under Mustermate monorepo
-- Use official branch trademarks, seals, or slogans in titles
-- Paywall core gameplay behind branch skins
-
-## Redirect — other fleet work (not this agent)
-
-Fleet kanban has ready cards for **other** sessions:
-
-1. **neural-network / connectome** — `handoffs/in-flight.md` hygiene, `repos.yaml` gap-fill  
-2. **MeniscusMaximus / fleet-demos** — itch devlog drafts (HTML/docs only)
-
-This instance should stay on MusterMill until itch + v0.2 prestige ship.
+- Duplicate idle game elsewhere
+- Use DoD trademarks / official slogans
+- Paywall core loop behind branch skins
+- Reintroduce scrollable roster as primary UI

@@ -1,9 +1,10 @@
-# MusterMill — GDD v0.2 (canonical)
+# MusterMill — GDD v0.4 (canonical)
 
 **Genre:** incremental idle · **Franchise:** Mustermate Network spin-off (fiction only)  
 **Platform:** web / itch / GitHub Pages · **Tone:** PG-13 campy chibi — comedy over romance  
 **Repo:** https://github.com/subtiliorars-sys/MusterMill  
-**Flavor bible:** `../Mustermate/packages/shared/data/branch-brands.json` + `data/flavor.json`
+**Flavor bible:** `../Mustermate/packages/shared/data/branch-brands.json` + `data/flavor.json`  
+**UI philosophy:** `IDLE_UI_PHILOSOPHY.md` · Fleet: `projects/shared/agent-corps/docs/IDLE_INCREMENTAL_UI_PHILOSOPHY.md`
 
 ## One-liner
 
@@ -32,6 +33,18 @@ Pair chibi soldiers in Heritage Quarters, hatch recruits, idle boot camp, run KP
 | Pair | **Assign to Heritage Quarters** (*for unit continuity purposes*) |
 
 Pairing header: **"S-1 has questions about your manpower forecast."**
+
+## UI philosophy (archetype C — base sim viewport)
+
+MusterMill follows the **Fallout Shelter / living workshop** idle pattern: one full-screen map, soldiers walking between zones, diegetic canvas HUD. Not a scrollable web form.
+
+| Doc | Purpose |
+|-----|---------|
+| `IDLE_UI_PHILOSOPHY.md` | Game-specific layout, audit, v0.5 roadmap |
+| Fleet `agent-corps/docs/IDLE_INCREMENTAL_UI_PHILOSOPHY.md` | Cross-game idle UI kernel |
+
+**v0.4 shipped:** fullscreen canvas, tap soldiers, integrated command ribbon.  
+**v0.5 targets:** tap buildings, production rate HUD, progressive button unlock, deploy ceremony.
 
 ## Core loops
 
@@ -101,8 +114,12 @@ Data: `data/branch-skins.json` · Itch demo: **Preview all branches** checkbox (
 - [x] itch zip + page copy + cover SVG  
 - [x] GitHub repo + Pages deploy script  
 - [x] v0.2 prestige deployment  
+- [x] v0.3 pixel soldiers + zone scene  
+- [x] v0.4 fullscreen base map + canvas HUD (no scroll)  
+- [x] UI philosophy docs (game + fleet)  
 - [ ] itch upload (owner / butler key)  
-- [ ] Building tree (v0.3)  
+- [ ] v0.5 UI polish (see `IDLE_UI_PHILOSOPHY.md` §6)  
+- [ ] Building tree (v0.6)  
 - [ ] Real IAP gate (itch / Stripe) — demo unlock OK for now
 
 ## Franchise map
