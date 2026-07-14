@@ -2,6 +2,8 @@
 
 Idle incremental spin-off of the **Mustermate Network** — pair chibi soldiers, hatch recruits, grow battalion strength. Satire only; not affiliated with DoD.
 
+**Play:** https://subtiliorars-sys.github.io/MusterMill/
+
 ## Play locally
 
 ```bash
