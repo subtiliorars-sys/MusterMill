@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="MusterMill — chibi soldier idle base builder. Mustermate satire." />
+    <title>MusterMill</title>
+    <script type="module" crossorigin src="./assets/index-QOcs_GRp.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DQxX3g9I.css">
+  </head>
+  <body>
+    <div id="game">
+      <canvas id="game-canvas" width="480" height="320" aria-label="MusterMill base"></canvas>
+      <div id="toast" class="toast hidden" role="status"></div>
+      <dialog id="skin-menu" class="skin-menu">
+        <form method="dialog">
+          <h3>Faction skin</h3>
+          <label class="demo-toggle"><input id="demo-unlock" type="checkbox" checked /> Preview all branches</label>
+          <div id="branch-picker"></div>
+          <button type="submit" class="menu-close">Close</button>
+        </form>
+      </dialog>
+      <dialog id="safety-brief" class="brief-modal">
+        <form method="dialog">
+          <h2>Safety Brief</h2>
+          <ul id="brief-lines"></ul>
+          <p class="brief-note" id="brief-disclaimer"></p>
+          <button type="submit" class="brief-ok">Roger, copy all</button>
+        </form>
+      </dialog>
+    </div>
+  
+    <script>
+    (function () {
+      try {
+        var k = 'mustermill-first-play-tip-v2';
+        if (localStorage.getItem(k) === '1') return;
+        var tip = document.createElement('div');
+        tip.setAttribute('role', 'status');
+        tip.style.cssText = 'position:fixed;left:10px;right:10px;bottom:10px;z-index:40;background:rgba(20,28,16,0.94);color:#d8efc0;padding:10px 12px;font:13px/1.4 system-ui,sans-serif;border:1px solid #3a5530;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+        tip.innerHTML = '<span>First muster? Pair soldiers, collect slips while idle (tab-hide freezes the sim), then try Faction skin. Satire only.</span>';
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = 'Got it';
+        b.style.cssText = 'background:#3a5530;color:#fff;border:0;padding:5px 9px;cursor:pointer';
+        var d = function () { tip.remove(); try { localStorage.setItem(k, '1'); } catch (e) {} };
+        b.onclick = d;
+        tip.appendChild(b);
+        document.body.appendChild(tip);
+        setTimeout(d, 11000);
+      } catch (e) {}
+    })();
+    </script>
+</body>
+</html>
