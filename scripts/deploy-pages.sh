@@ -9,6 +9,7 @@ cd /tmp/mustermill-pages
 git init -b gh-pages
 git add -A
 git commit -m "Deploy $(date -u +%Y-%m-%dT%H:%MZ)"
+git remote remove origin 2>/dev/null || true
 git remote add origin https://github.com/subtiliorars-sys/MusterMill.git
 git push -f origin gh-pages
 echo "Live: https://subtiliorars-sys.github.io/MusterMill/"

@@ -35,6 +35,8 @@ export interface Soldier {
   onMission: boolean;
   pairedUntil?: number;
   branch: BranchSlug;
+  /** Traits inherited at reduced strength after prestige */
+  weakenedTraits?: TraitName[];
 }
 
 export interface GameState {
@@ -44,9 +46,17 @@ export interface GameState {
   missionEndsAt: number | null;
   missionSoldierIds: number[];
   heritageBranch: BranchSlug;
+  deployments: number;
+  bloodlineTrait: TraitName | null;
+  bloodlineStrength: number;
 }
 
 export const MAX_SLOTS = 10;
+export const MAX_DEPLOYMENTS = 5;
+export const PRESTIGE_LINEAGE_MIN = 3;
+export const PRESTIGE_STRENGTH_MIN = 4;
+export const BLOODLINE_CARRY_DEFAULT = 0.5;
+export const HIGH_AND_TIGHT_CARRY_BONUS = 0.03;
 export const GROWTH_TICK_MS = 4000;
 export const PAIR_DURATION_MS = 6000;
 export const MISSION_DURATION_MS = 8000;
@@ -72,6 +82,79 @@ export function createInitialState(): GameState {
     missionEndsAt: null,
     missionSoldierIds: [],
     heritageBranch: 'ocp',
+    deployments: 0,
+    bloodlineTrait: null,
+    bloodlineStrength: BLOODLINE_CARRY_DEFAULT,
+  };
+}
+
+export function traitStrength(soldier: Soldier, trait: TraitName, state: GameState): number {
+  if (soldier.weakenedTraits?.includes(trait)) return state.bloodlineStrength;
+  return 1;
+}
+
+export function slipMultiplier(state: GameState): number {
+  return 1 + 0.1 * Math.min(state.deployments, MAX_DEPLOYMENTS);
+}
+
+export function canPrestige(state: GameState, now = Date.now()): { ok: boolean; reason: string } {
+  if (state.missionEndsAt && now < state.missionEndsAt) {
+    return { ok: false, reason: 'Wait for KP to finish.' };
+  }
+  if (state.soldiers.some((s) => s.pairedUntil)) {
+    return { ok: false, reason: 'Wait for muster to finish.' };
+  }
+  if (state.deployments >= MAX_DEPLOYMENTS) {
+    return { ok: false, reason: 'Max deployments (5) reached.' };
+  }
+  if (lineageDepth(state) < PRESTIGE_LINEAGE_MIN) {
+    return { ok: false, reason: `Lineage depth ${PRESTIGE_LINEAGE_MIN}+ required.` };
+  }
+  if (activeStrength(state) < PRESTIGE_STRENGTH_MIN) {
+    return { ok: false, reason: `Active strength ${PRESTIGE_STRENGTH_MIN}+ required.` };
+  }
+  return { ok: true, reason: 'Ready to deploy.' };
+}
+
+export function pickBloodlineTrait(state: GameState): TraitName {
+  const byGen = [...state.soldiers].sort((a, b) => b.generation - a.generation);
+  for (const s of byGen) {
+    if (s.traits[0]) return s.traits[0];
+  }
+  return 'DFAC Diplomat';
+}
+
+export function prestige(state: GameState, activeBranch: BranchSlug): GameState {
+  if (!canPrestige(state).ok) return state;
+
+  const trait = pickBloodlineTrait(state);
+  let carry = BLOODLINE_CARRY_DEFAULT;
+  if (state.soldiers.some((s) => s.traits.includes('High & Tight Gene'))) {
+    carry = Math.min(0.65, carry + HIGH_AND_TIGHT_CARRY_BONUS);
+  }
+
+  const mk = (id: number, name: string, extra: TraitName): Soldier => ({
+    id,
+    name,
+    stage: 'specialist',
+    traits: [trait, extra],
+    generation: 1,
+    growthProgress: 1,
+    onMission: false,
+    branch: activeBranch,
+    weakenedTraits: [trait],
+  });
+
+  return {
+    soldiers: [mk(1, 'Pvt. Redeploy', 'DFAC Diplomat'), mk(2, 'Pvt. Return', 'Range Day Reflex')],
+    slips: 0,
+    nextId: 3,
+    missionEndsAt: null,
+    missionSoldierIds: [],
+    heritageBranch: activeBranch,
+    deployments: state.deployments + 1,
+    bloodlineTrait: trait,
+    bloodlineStrength: carry,
   };
 }
 
@@ -129,10 +212,13 @@ export function tick(state: GameState, now = Date.now()): GameState {
   if (next.missionEndsAt && now >= next.missionEndsAt) {
     const missionIds = next.missionSoldierIds;
     const payoutPer = BASE_KP_PAYOUT;
-    const bonus = next.soldiers
-      .filter((s) => missionIds.includes(s.id))
-      .reduce((sum, s) => sum + (s.traits.includes('11B Bloodline') ? 1 : 0), 0);
-    const total = missionIds.length * payoutPer + bonus * 2;
+    const onMission = next.soldiers.filter((s) => missionIds.includes(s.id));
+    const bonus = onMission.reduce(
+      (sum, s) => sum + (s.traits.includes('11B Bloodline') ? traitStrength(s, '11B Bloodline', next) : 0),
+      0,
+    );
+    const raw = missionIds.length * payoutPer + bonus * 2;
+    const total = Math.floor(raw * slipMultiplier(next));
     next = {
       ...next,
       slips: next.slips + total,
@@ -189,7 +275,13 @@ export function advanceGrowth(state: GameState, deltaMs: number): GameState {
     ...state,
     soldiers: state.soldiers.map((s) => {
       if (s.stage === 'specialist' || s.onMission || s.pairedUntil) return s;
-      const rate = s.traits.includes('68W Heritage') ? 1.15 : 1;
+      let rate = 1;
+      if (s.traits.includes('68W Heritage')) {
+        rate *= 1 + 0.15 * traitStrength(s, '68W Heritage', state);
+      }
+      if (s.traits.includes('NCO Academy')) {
+        rate *= 1 + 0.15 * traitStrength(s, 'NCO Academy', state);
+      }
       let progress = s.growthProgress + (deltaMs / GROWTH_TICK_MS) * rate;
       let stage: GrowthStage = s.stage;
       while (progress >= 1 && stage !== 'specialist') {

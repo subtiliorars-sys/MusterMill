@@ -117,5 +117,17 @@
       "MCMAP not required for KP. Slips still earned."
     ]
   },
-  "premium_cta": "Branch Pack — $2.99 unlocks your parody faction skin + 50 field-manual quips. Enable itch demo preview to try all branches."
+  "premium_cta": "Branch Pack — $2.99 unlocks your parody faction skin + 50 field-manual quips. Enable itch demo preview to try all branches.",
+  "deployment": {
+    "universal": [
+      "Deployment orders cut. Battalion reset. Bloodline carries forward.",
+      "PCS complete. Two Privates and a dream remain.",
+      "Safety brief mandatory. Then we do it all again.",
+      "S-1 archived your roster. Heritage trait filed at 50% strength."
+    ],
+    "ready": [
+      "Lineage deep enough. Commander approves deployment prestige.",
+      "Manpower forecast satisfied. Deploy when ready."
+    ]
+  }
 }

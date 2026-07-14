@@ -89,15 +89,9 @@ Data: `data/branch-skins.json` · Itch demo: **Preview all branches** checkbox (
 
 **Never sell:** breeding speed as only paid path.
 
-## Prestige rule (v0.2 — not built)
+## Prestige rule (v0.2 — shipped)
 
-**Deployment:** reset soldiers + buildings; keep one bloodline trait at 50%; +10% slip gain per deployment (cap 5×). Opens with skippable safety brief.
-
-## Humor sources
-
-- `data/flavor.json` — safety brief, rotating field tips, pair/birth/KP toasts per branch  
-- Mustermate `culture_bits`, `grooming_bits`, `quotes` — mine for Field Manual entries (premium)  
-- Free tier gets ~20% of quips; branch pack unlocks the rest
+**Deployment:** reset soldiers; keep one bloodline trait at 50% (+3% with High & Tight Gene); +10% slip gain per deployment (max 5 deploys = +50%). Requires lineage ≥3, strength ≥4, no active KP/muster.
 
 ## MVP checklist
 
@@ -105,9 +99,10 @@ Data: `data/branch-skins.json` · Itch demo: **Preview all branches** checkbox (
 - [x] Branch skin toggle + localStorage  
 - [x] Parody faction names + flavor toasts  
 - [x] itch zip + page copy + cover SVG  
-- [x] GitHub repo + Pages workflow  
+- [x] GitHub repo + Pages deploy script  
+- [x] v0.2 prestige deployment  
 - [ ] itch upload (owner / butler key)  
-- [ ] v0.2 prestige + building tree  
+- [ ] Building tree (v0.3)  
 - [ ] Real IAP gate (itch / Stripe) — demo unlock OK for now
 
 ## Franchise map

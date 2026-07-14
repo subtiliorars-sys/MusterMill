@@ -8,6 +8,8 @@ import {
 } from './branches';
 import {
   birthMessage,
+  deploymentMessage,
+  deploymentReadyMessage,
   getDisclaimer,
   getSafetyBriefLines,
   missionCompleteMessage,
@@ -15,14 +17,18 @@ import {
   premiumCta,
   randomTip,
 } from './flavor';
-import { clearSave, loadBundle, saveBundle } from './storage';
+import { clearSave, loadBundle, normalizeGameState, saveBundle } from './storage';
 import {
   activeStrength,
   advanceGrowth,
   buyReinforcement,
+  canPrestige,
   createInitialState,
   lineageDepth,
+  prestige,
+  pickBloodlineTrait,
   REINFORCEMENT_COST,
+  slipMultiplier,
   startMission,
   startPair,
   tick,
@@ -55,6 +61,9 @@ const els = {
   strength: document.getElementById('strength')!,
   slips: document.getElementById('slips')!,
   lineage: document.getElementById('lineage')!,
+  deployments: document.getElementById('deployments')!,
+  deployBtn: document.getElementById('deploy-btn') as HTMLButtonElement,
+  deployStatus: document.getElementById('deploy-status')!,
   roster: document.getElementById('roster')!,
   pairBtn: document.getElementById('pair-btn') as HTMLButtonElement,
   reinforceBtn: document.getElementById('reinforce-btn') as HTMLButtonElement,
@@ -99,7 +108,8 @@ function showToast(message: string, ms = 4500): void {
 }
 
 function rotateTip(): void {
-  els.fieldTip.textContent = `📋 ${randomTip(branchSlug)}`;
+  const manualOn = isBranchUnlocked(branchSlug, demoUnlock) && branchSlug !== 'ocp';
+  els.fieldTip.textContent = `📋 ${randomTip(branchSlug, manualOn)}`;
   lastTipAt = Date.now();
 }
 
@@ -143,6 +153,18 @@ function render(): void {
   els.strength.textContent = String(activeStrength(s));
   els.slips.textContent = String(Math.floor(s.slips));
   els.lineage.textContent = String(lineageDepth(s));
+  els.deployments.textContent = String(s.deployments);
+
+  const deployCheck = canPrestige(s);
+  const mult = Math.round(slipMultiplier(s) * 100);
+  const parts: string[] = [`Slip bonus ${mult}%`];
+  if (s.bloodlineTrait) {
+    parts.push(`${s.bloodlineTrait} @ ${Math.round(s.bloodlineStrength * 100)}%`);
+  }
+  parts.push(deployCheck.ok ? deploymentReadyMessage() : deployCheck.reason);
+  els.deployStatus.textContent = parts.join(' · ');
+  els.deployBtn.disabled = !deployCheck.ok;
+  els.deployBtn.title = deployCheck.reason;
 
   els.roster.innerHTML = '';
   for (const soldier of s.soldiers) {
@@ -246,14 +268,14 @@ function boot(): void {
     branchSlug = (saved.branchSlug as BranchSlug) ?? (DEFAULT_BRANCH as BranchSlug);
     demoUnlock = saved.demoUnlock ?? demoUnlock;
     els.demoUnlock.checked = demoUnlock;
-    state.current = {
+    state.current = normalizeGameState({
       ...saved.game,
       heritageBranch: (saved.game.heritageBranch as BranchSlug) ?? branchSlug,
       soldiers: saved.game.soldiers.map((s) => ({
         ...s,
         branch: (s as Soldier).branch ?? branchSlug,
       })),
-    };
+    });
   }
 
   activeSkin = applyBranchTheme(branchSlug);
@@ -299,6 +321,28 @@ els.missionBtn.addEventListener('click', () => {
   } else if (before === 0) {
     showToast('No available adults — wait for growth or finish muster.');
   }
+  render();
+  persistSoon();
+});
+
+els.deployBtn.addEventListener('click', () => {
+  const check = canPrestige(state.current);
+  if (!check.ok) {
+    showToast(check.reason);
+    return;
+  }
+  const trait = pickBloodlineTrait(state.current);
+  if (
+    !confirm(
+      `Deploy battalion?\n\nReset all soldiers and slips.\nKeep bloodline trait at 50%.\n+10% permanent slip bonus.\n\nNext carry: ${trait}`,
+    )
+  ) {
+    return;
+  }
+  state.current = prestige(state.current, branchSlug);
+  selected.clear();
+  showToast(deploymentMessage());
+  rotateTip();
   render();
   persistSoon();
 });

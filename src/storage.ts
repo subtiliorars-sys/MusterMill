@@ -1,6 +1,27 @@
 import type { GameState } from './sim';
+import { BLOODLINE_CARRY_DEFAULT } from './sim';
 
-const SAVE_KEY = 'mustermill-save-v1';
+const SAVE_KEY = 'mustermill-save-v2';
+
+export interface PersistedBundle {
+  game: GameState;
+  branchSlug: string;
+  demoUnlock: boolean;
+  savedAt: number;
+}
+
+export function normalizeGameState(raw: GameState): GameState {
+  return {
+    ...raw,
+    deployments: raw.deployments ?? 0,
+    bloodlineTrait: raw.bloodlineTrait ?? null,
+    bloodlineStrength: raw.bloodlineStrength ?? BLOODLINE_CARRY_DEFAULT,
+    soldiers: raw.soldiers.map((s) => ({
+      ...s,
+      weakenedTraits: s.weakenedTraits ?? [],
+    })),
+  };
+}
 
 export interface PersistedBundle {
   game: GameState;
@@ -15,7 +36,7 @@ export function loadBundle(): PersistedBundle | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PersistedBundle;
     if (!parsed?.game?.soldiers?.length) return null;
-    return parsed;
+    return { ...parsed, game: normalizeGameState(parsed.game) };
   } catch {
     return null;
   }

@@ -21,6 +21,7 @@
           <div class="stat"><span class="label">Strength</span><strong id="strength">0</strong></div>
           <div class="stat"><span class="label">Slips</span><strong id="slips">0</strong></div>
           <div class="stat"><span class="label">Lineage</span><strong id="lineage">0</strong></div>
+          <div class="stat"><span class="label">Deploy</span><strong id="deployments">0</strong></div>
         </div>
       </header>
 
@@ -59,6 +60,13 @@
         <p class="hint">Send available adults on mess-hall duty. Earn slips while idle.</p>
         <button id="mission-btn" type="button">Send to KP</button>
         <p id="mission-status" class="status"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Deployment (prestige)</h2>
+        <p class="hint">Reset roster, keep one bloodline trait at 50%, +10% slip gain per deploy (max 5).</p>
+        <p id="deploy-status" class="status"></p>
+        <button id="deploy-btn" type="button" disabled>Execute Deployment</button>
       </section>
 
       <section class="panel tools">

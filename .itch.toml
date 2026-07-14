@@ -1,0 +1,12 @@
+[itch]
+title = "MusterMill — Legacy Muster"
+user = "subtiliorars"
+project = "mustermill"
+
+[pickup]
+channel = "html"
+
+[[actions]]
+name = "push-html"
+path = "dist/mustermill-itch.zip"
+channel = "html"

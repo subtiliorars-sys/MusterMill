@@ -48,9 +48,13 @@ Same game engine, different **Mustermate branch wrapper**: colors, mascot (🪖 
 - Not a dating sim or visual novel — pairing is a **production mechanic**.  
 - Fictional chibi soldiers only.
 
+### v0.2 scope
+
+Deployment prestige: lineage ≥3, strength ≥4 → reset soldiers, keep bloodline trait, stack slip multiplier. Field Manual rotates Mustermate branch humor when a faction skin is active.
+
 ### v0.1 scope
 
-Save persists in browser localStorage. Prestige deployments and building trees land in v0.2.
+Save persists in browser localStorage.
 
 ### Related
 

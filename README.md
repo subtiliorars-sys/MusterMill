@@ -39,6 +39,12 @@ npm run build
 - **Agent handoff:** [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md) — canonical owner doc for continuing work
 - Branch data: [`data/branch-skins.json`](data/branch-skins.json) (from Mustermate `branch-brands.json`)
 
+## v0.2
+
+- **Deployment prestige** — reset roster, carry bloodline trait at 50%, +10% slip bonus per deploy (max 5)
+- **Field Manual** — 188 branch quips imported from Mustermate `branch-brands.json`
+- itch release script: `npm run release:itch`
+
 ## v0.1
 
 - Pairing, growth bars, KP idle, reinforcements (40 slips)
