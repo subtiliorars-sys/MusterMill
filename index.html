@@ -33,12 +33,12 @@
     <script>
     (function () {
       try {
-        var k = 'mustermill-first-play-tip-v1';
+        var k = 'mustermill-first-play-tip-v2';
         if (localStorage.getItem(k) === '1') return;
         var tip = document.createElement('div');
         tip.setAttribute('role', 'status');
         tip.style.cssText = 'position:fixed;left:10px;right:10px;bottom:10px;z-index:40;background:rgba(20,28,16,0.94);color:#d8efc0;padding:10px 12px;font:13px/1.4 system-ui,sans-serif;border:1px solid #3a5530;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
-        tip.innerHTML = '<span>First muster? Pair two soldiers, collect slips while idle, then open Faction skin to try branch colors. Satire only.</span>';
+        tip.innerHTML = '<span>First muster? Pair soldiers, collect slips while idle (tab-hide freezes the sim), then try Faction skin. Satire only.</span>';
         var b = document.createElement('button');
         b.type = 'button';
         b.textContent = 'Got it';
