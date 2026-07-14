@@ -39,6 +39,13 @@ npm run build
 - **Agent handoff:** [`docs/AGENT_HANDOFF.md`](docs/AGENT_HANDOFF.md) — canonical owner doc for continuing work
 - Branch data: [`data/branch-skins.json`](data/branch-skins.json) (from Mustermate `branch-brands.json`)
 
+## v0.4
+
+- **Full-screen game view** — no scrolling; one canvas fills the viewport
+- **Zoomed-out base map** — forest, grass, roads, barracks, heritage quarters, mess hall, liberty gate, deploy pad
+- **Walking soldiers** — chibis lerp to zones; patrol loop around perimeter
+- **In-game HUD** — stats + action buttons drawn on canvas; tap soldiers to select
+
 ## v0.3
 
 - **Pixel art chibi soldiers** — branch-tinted sprites on roster cards

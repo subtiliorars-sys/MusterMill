@@ -2,103 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="MusterMill — breed chibi soldiers, grow your battalion. Mustermate Network satire idle game."
-    />
-    <title>MusterMill — Legacy Muster</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="MusterMill — chibi soldier idle base builder. Mustermate satire." />
+    <title>MusterMill</title>
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
-    <div id="app">
-      <header class="top">
-        <div class="title-block">
-          <h1 id="title">MusterMill</h1>
-          <p id="tagline" class="tagline">Satire idle · not affiliated with DoD</p>
-        </div>
-        <div class="stats">
-          <div class="stat"><span class="label">Strength</span><strong id="strength">0</strong></div>
-          <div class="stat"><span class="label">Slips</span><strong id="slips">0</strong></div>
-          <div class="stat"><span class="label">Lineage</span><strong id="lineage">0</strong></div>
-          <div class="stat"><span class="label">Deploy</span><strong id="deployments">0</strong></div>
-        </div>
-      </header>
-
-      <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
-
-      <section class="panel tip-panel">
-        <p id="field-tip" class="field-tip"></p>
-      </section>
-
-      <section class="panel scene-panel">
-        <h2>Base operations</h2>
-        <p class="hint">Live pixel view — boot camp, barracks, heritage, mess hall, liberty, patrol.</p>
-        <canvas id="scene-canvas" class="scene-canvas" width="360" height="168" aria-label="Base operations pixel scene"></canvas>
-        <p id="scene-caption" class="status scene-caption"></p>
-      </section>
-
-      <section class="panel branch-panel">
-        <div class="panel-head">
-          <h2>Faction skin</h2>
-          <label class="demo-toggle">
-            <input id="demo-unlock" type="checkbox" checked />
-            <span>Preview all branches</span>
-          </label>
-        </div>
-        <p class="hint">
-          Free: Allied Camo + Big Green. Branch Packs ($2.99) unlock parody factions — preview here for itch.
-        </p>
-        <div id="branch-picker" class="branch-picker"></div>
-      </section>
-
-      <section class="panel">
-        <h2>Heritage Quarters</h2>
-        <p class="hint">Select two Specialists → Legacy Muster. Comedy, not romance.</p>
-        <div id="roster" class="roster"></div>
-        <div class="row-actions">
-          <button id="pair-btn" type="button" disabled>Legacy Muster</button>
-          <button id="reinforce-btn" type="button" disabled>Reinforce (40 slips)</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2>KP Duty</h2>
-        <p class="hint">Send available adults on mess-hall duty. Earn slips while idle.</p>
-        <button id="mission-btn" type="button">Send to KP</button>
-        <p id="mission-status" class="status"></p>
-      </section>
-
-      <section class="panel">
-        <h2>Deployment (prestige)</h2>
-        <p class="hint">Reset roster, keep one bloodline trait at 50%, +10% slip gain per deploy (max 5).</p>
-        <p id="deploy-status" class="status"></p>
-        <button id="deploy-btn" type="button" disabled>Execute Deployment</button>
-      </section>
-
-      <section class="panel tools">
-        <button id="reset-btn" type="button" class="ghost">Reset save</button>
-        <span id="save-status" class="status"></span>
-      </section>
-
-      <footer class="disclaimer">
-        <p id="disclaimer-text"></p>
-        <p>
-          Mustermate Network spin-off ·
-          <a href="https://github.com/subtiliorars-sys/Mustermate" target="_blank" rel="noopener">Mustermate</a>
-        </p>
-      </footer>
+    <div id="game">
+      <canvas id="game-canvas" width="480" height="320" aria-label="MusterMill base"></canvas>
+      <div id="toast" class="toast hidden" role="status"></div>
+      <dialog id="skin-menu" class="skin-menu">
+        <form method="dialog">
+          <h3>Faction skin</h3>
+          <label class="demo-toggle"><input id="demo-unlock" type="checkbox" checked /> Preview all branches</label>
+          <div id="branch-picker"></div>
+          <button type="submit" class="menu-close">Close</button>
+        </form>
+      </dialog>
+      <dialog id="safety-brief" class="brief-modal">
+        <form method="dialog">
+          <h2>Safety Brief</h2>
+          <ul id="brief-lines"></ul>
+          <p class="brief-note" id="brief-disclaimer"></p>
+          <button type="submit" class="brief-ok">Roger, copy all</button>
+        </form>
+      </dialog>
     </div>
-
-    <dialog id="safety-brief" class="brief-modal">
-      <form method="dialog">
-        <h2>Safety Brief</h2>
-        <ul id="brief-lines"></ul>
-        <p class="brief-note" id="brief-disclaimer"></p>
-        <button type="submit" class="brief-ok">Roger, copy all</button>
-      </form>
-    </dialog>
-
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
