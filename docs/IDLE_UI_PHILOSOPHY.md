@@ -31,7 +31,7 @@ Player fantasy: *"I run the most unhinged battalion on a tiny pixel base."*
 
 ---
 
-## 3. Screen layout (v0.4 canonical)
+## 3. Screen layout (v0.5 canonical)
 
 ```
 ┌─────────────────────────────────────────────┐  ← Top HUD (canvas): title, stats, tip ticker
@@ -61,13 +61,38 @@ Player fantasy: *"I run the most unhinged battalion on a tiny pixel base."*
 | Tap **+REC** | Spend 40 slips → new specialist spawns at Barracks |
 | Tap **DEPLOY** | Prestige confirm → reset → Deploy Pad ceremony (v0.5 polish) |
 | Tap **SKINS** | HTML modal (faction picker — exception to diegetic rule) |
-| Tap zone building (v0.5) | Same as corresponding button |
+| Tap zone building | Same as corresponding button (Heritage, Mess, Deploy Pad) |
 
 **Why HTML modal for skins:** 8 faction chips + demo toggle = too much for canvas v0.4; modal is fleet-acceptable per parent doc §5.
 
 ---
 
-## 5. v0.4 compliance audit (vs fleet kernel)
+## 5. v0.5 compliance audit (vs fleet kernel)
+
+| Kernel principle | v0.5 status | Notes |
+|------------------|-------------|-------|
+| Watch layer first | ✅ Strong | Scale-3 soldiers, muster hearts, duffel vignette, KP scrub/steam |
+| Loop legible in 5s | ⚠️ Partial | Building tap hints + gold pulse on actionable buildings |
+| Primary currency visible | ✅ | SLIPS in top HUD |
+| Production rate visible | ❌ Gap | No `+X slips/run` or KP ETA in HUD (P1) |
+| Instant feedback | ✅ | Toasts, selection ring, building highlights |
+| Affordability obvious | ⚠️ Partial | +REC disables; no progress-to-40 bar (P1) |
+| Progressive disclosure | ❌ Gap | All buttons visible session 1 (P2) |
+| No core-loop scroll | ✅ | `overflow: hidden`, full viewport |
+| Prestige ceremony | ⚠️ Partial | Confirm dialog; deploy pad tappable (P3 animation) |
+| Return hook | ❌ Gap | No offline recap (P3) |
+| Touch targets | ✅ | Buildings + ribbon ≥44px effective |
+| Identity monetization | ✅ | Branch skins; demo unlock on itch |
+
+**Score:** 7/12 strong · 3 partial · 2 gaps → **v0.6 targets P1–P2**
+
+### v0.5 shipped (P0)
+- Tap buildings: Heritage → muster, Mess → KP, Deploy Pad → prestige
+- Soldier scale 2→3 on world map
+- Muster vignette: pixel heart + rising duffel at Heritage Quarters
+- KP active decor: potato pile, scrub bubbles, enhanced steam
+
+## 5b. v0.4 compliance audit (archived)
 
 | Kernel principle | v0.4 status | Notes |
 |------------------|-------------|-------|
@@ -92,11 +117,11 @@ Player fantasy: *"I run the most unhinged battalion on a tiny pixel base."*
 
 Priority order from idle genre conventions:
 
-### P0 — Watch layer upgrades
-1. **Tap buildings** — Mess Hall = KP, Heritage = muster hint, Deploy Pad = prestige
-2. **Bigger soldiers** — scale 2→3 in world; readability on phone
-3. **Muster vignette** — two soldiers + tiny duffel spawn pixel anim at Heritage
-4. **KP potato steam + scrub sprite** — mess hall activity more readable
+### P0 — Watch layer upgrades ✅ v0.5
+1. ~~**Tap buildings**~~ — Mess Hall = KP, Heritage = muster hint, Deploy Pad = prestige
+2. ~~**Bigger soldiers**~~ — scale 2→3 in world; readability on phone
+3. ~~**Muster vignette**~~ — two soldiers + tiny duffel spawn pixel anim at Heritage
+4. ~~**KP potato steam + scrub sprite**~~ — mess hall activity more readable
 
 ### P1 — Cookie Clicker economics UX
 5. **Production strip** — `+12 slips/KP run` · `KP 42s` under stats

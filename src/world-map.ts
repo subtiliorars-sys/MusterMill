@@ -5,6 +5,92 @@ export const WORLD_BOTTOM = 262;
 export const HUD_H = 30;
 export const BAR_TOP = 266;
 
+export type BuildingAction = 'muster' | 'kp' | 'deploy' | 'hint';
+
+export interface BuildingHit {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  action: BuildingAction;
+  hint?: string;
+}
+
+/** Tap targets aligned to `drawWorldBuildings` in game-view.ts */
+export const BUILDINGS: BuildingHit[] = [
+  {
+    id: 'boot',
+    label: 'BOOT',
+    x: 44,
+    y: 148,
+    w: 60,
+    h: 48,
+    action: 'hint',
+    hint: 'Recruits train here until they promote.',
+  },
+  {
+    id: 'barracks',
+    label: 'BARRACKS',
+    x: 134,
+    y: 100,
+    w: 70,
+    h: 58,
+    action: 'hint',
+    hint: 'Tap two specialists on the map, then MUSTER.',
+  },
+  {
+    id: 'heritage',
+    label: 'HERITAGE',
+    x: 232,
+    y: 92,
+    w: 74,
+    h: 62,
+    action: 'muster',
+  },
+  {
+    id: 'mess',
+    label: 'MESS',
+    x: 332,
+    y: 96,
+    w: 74,
+    h: 60,
+    action: 'kp',
+  },
+  {
+    id: 'liberty',
+    label: 'LIBERTY',
+    x: 372,
+    y: 160,
+    w: 62,
+    h: 40,
+    action: 'hint',
+    hint: 'Liberty gate — off-base chibi downtime.',
+  },
+  {
+    id: 'deploy_pad',
+    label: 'DEPLOY',
+    x: 396,
+    y: 212,
+    w: 78,
+    h: 46,
+    action: 'deploy',
+  },
+];
+
+export function hitTestBuilding(px: number, py: number): BuildingHit | null {
+  if (py < WORLD_TOP || py > WORLD_BOTTOM) return null;
+  let best: { b: BuildingHit; area: number } | null = null;
+  for (const b of BUILDINGS) {
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) {
+      const area = b.w * b.h;
+      if (!best || area < best.area) best = { b, area };
+    }
+  }
+  return best?.b ?? null;
+}
+
 export interface ZoneAnchor {
   id: SoldierActivity | 'deploy_pad';
   label: string;
@@ -30,8 +116,8 @@ export function zoneFor(activity: SoldierActivity): ZoneAnchor {
 export function slotOffset(id: number, index: number): { dx: number; dy: number } {
   const ring = index % 6;
   const angle = (ring / 6) * Math.PI * 2 + id * 0.4;
-  const r = 14 + Math.floor(index / 6) * 10;
-  return { dx: Math.cos(angle) * r, dy: Math.sin(angle) * r * 0.6 };
+  const r = 18 + Math.floor(index / 6) * 12;
+  return { dx: Math.cos(angle) * r, dy: Math.sin(angle) * r * 0.55 };
 }
 
 /** Patrol waypoints — perimeter loop */

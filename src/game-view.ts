@@ -7,6 +7,7 @@ import {
 } from './pixel-art';
 import {
   BAR_TOP,
+  BUILDINGS,
   HUD_H,
   lerpEntity,
   patrolPosition,
@@ -14,6 +15,7 @@ import {
   WORLD_BOTTOM,
   WORLD_TOP,
   ZONES,
+  type BuildingHit,
   type WorldEntity,
   zoneFor,
 } from './world-map';
@@ -39,6 +41,13 @@ export interface GameViewSoldier {
   selectable: boolean;
 }
 
+export interface WorldVignette {
+  kind: 'muster_duffel';
+  x: number;
+  y: number;
+  age: number;
+}
+
 export interface GameViewState {
   soldiers: GameViewSoldier[];
   selected: Set<number>;
@@ -50,10 +59,12 @@ export interface GameViewState {
   buttons: HudButton[];
   missionLeft: number | null;
   deployReady: boolean;
+  kpActive: boolean;
+  vignettes: WorldVignette[];
 }
 
-const SPRITE_SCALE = 2;
-const HIT_R = 14;
+const SPRITE_SCALE = 3;
+const HIT_R = 20;
 
 export function defaultButtons(enabled: Record<HudAction, boolean>): HudButton[] {
   const y = BAR_TOP + 4;
@@ -127,15 +138,12 @@ function drawBuilding(
   ctx.fillText(label, x + bw / 2, y - 12);
 }
 
-function drawWorldBuildings(ctx: CanvasRenderingContext2D, frame: number): void {
+function drawWorldBuildings(ctx: CanvasRenderingContext2D, frame: number, vs: GameViewState): void {
   drawBuilding(ctx, 48, 155, 52, 38, '#4a4030', '#5c5040', 'BOOT');
   drawBuilding(ctx, 140, 108, 58, 48, '#3d4a30', '#4a5840', 'BARRACKS');
   drawBuilding(ctx, 238, 100, 62, 52, '#4a4038', '#5a5048', 'HERITAGE');
   drawBuilding(ctx, 338, 104, 64, 50, '#5a4838', '#6a5848', 'MESS');
-  const steam = Math.sin(frame * 0.08) * 3;
-  ctx.fillStyle = '#888';
-  ctx.fillRect(388, 88 + steam, 6, 12);
-  ctx.fillRect(394, 82 + steam * 1.2, 4, 8);
+  drawKpMessDecor(ctx, frame, vs.kpActive);
   ctx.fillStyle = '#2a3040';
   ctx.fillRect(378, 188, 54, 8);
   ctx.fillRect(382, 168, 8, 28);
@@ -143,7 +151,10 @@ function drawWorldBuildings(ctx: CanvasRenderingContext2D, frame: number): void 
   ctx.fillStyle = '#e94560';
   ctx.font = '6px monospace';
   ctx.textAlign = 'center';
+  const libertyBlink = Math.sin(frame * 0.12) > 0 ? 1 : 0.45;
+  ctx.globalAlpha = libertyBlink;
   ctx.fillText('LIBERTY', 405, 182);
+  ctx.globalAlpha = 1;
   ctx.fillStyle = '#4a4a50';
   ctx.fillRect(400, 218, 70, 36);
   ctx.strokeStyle = '#d4a017';
@@ -151,6 +162,103 @@ function drawWorldBuildings(ctx: CanvasRenderingContext2D, frame: number): void 
   ctx.strokeRect(404, 222, 62, 28);
   ctx.fillStyle = '#d4a017';
   ctx.fillText('DEPLOY', 435, 240);
+
+  drawBuildingHighlights(ctx, vs);
+}
+
+function buildingHighlight(b: BuildingHit, vs: GameViewState): boolean {
+  switch (b.action) {
+    case 'muster':
+      return vs.selected.size === 2;
+    case 'kp':
+      return vs.buttons.find((x) => x.id === 'kp')?.enabled ?? false;
+    case 'deploy':
+      return vs.deployReady;
+    default:
+      return false;
+  }
+}
+
+function drawBuildingHighlights(ctx: CanvasRenderingContext2D, vs: GameViewState): void {
+  const pulse = 0.55 + Math.sin(vs.frame * 0.1) * 0.25;
+  for (const b of BUILDINGS) {
+    if (!buildingHighlight(b, vs)) continue;
+    ctx.strokeStyle = `rgba(212,160,23,${pulse})`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
+  }
+}
+
+function drawKpMessDecor(ctx: CanvasRenderingContext2D, frame: number, active: boolean): void {
+  const baseX = 358;
+  const baseY = 88;
+  const steam = Math.sin(frame * 0.1) * 4;
+  ctx.fillStyle = active ? 'rgba(220,220,220,0.55)' : 'rgba(136,136,136,0.45)';
+  ctx.fillRect(388, baseY + steam, 6, 14);
+  ctx.fillRect(394, baseY - 6 + steam * 1.3, 5, 10);
+  ctx.fillRect(376, baseY + 4 - steam * 0.8, 4, 8);
+
+  if (!active) return;
+
+  ctx.fillStyle = '#8b6914';
+  ctx.fillRect(baseX, 148, 10, 8);
+  ctx.fillRect(baseX + 12, 150, 9, 7);
+  ctx.fillRect(baseX + 22, 149, 8, 8);
+  ctx.fillStyle = '#c4a035';
+  ctx.fillRect(baseX + 2, 150, 3, 3);
+  ctx.fillRect(baseX + 15, 152, 3, 2);
+
+  const scrub = Math.sin(frame * 0.25) * 3;
+  ctx.fillStyle = 'rgba(200,230,255,0.35)';
+  ctx.fillRect(370 + scrub, 132, 8, 6);
+  ctx.fillRect(382 - scrub, 128, 6, 5);
+  ctx.font = '5px monospace';
+  ctx.fillStyle = '#87ceeb';
+  ctx.textAlign = 'center';
+  ctx.fillText('scrub', 378, 126);
+}
+
+function drawDuffel(ctx: CanvasRenderingContext2D, x: number, y: number, age: number): void {
+  const rise = Math.min(age * 0.6, 18);
+  const bob = Math.sin(age * 0.2) * 2;
+  const dy = y - rise + bob;
+  const alpha = age < 100 ? 1 : Math.max(0, 1 - (age - 100) / 20);
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = '#4a4030';
+  ctx.fillRect(x - 8, dy, 16, 10);
+  ctx.fillStyle = '#6a5848';
+  ctx.fillRect(x - 6, dy - 4, 12, 5);
+  ctx.fillStyle = '#c4b581';
+  ctx.fillRect(x - 2, dy - 2, 4, 3);
+  if (age % 12 < 6) {
+    ctx.fillStyle = '#e94560';
+    ctx.fillRect(x + 6, dy - 10, 3, 3);
+    ctx.fillRect(x - 8, dy - 8, 2, 2);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawMusterHearts(ctx: CanvasRenderingContext2D, soldiers: GameViewSoldier[], entities: Map<number, WorldEntity>, frame: number): void {
+  const mustering = soldiers.filter((s) => s.activity === 'heritage_muster');
+  if (mustering.length < 2) return;
+  const positions = mustering
+    .map((s) => entities.get(s.id))
+    .filter((e): e is WorldEntity => !!e);
+  if (positions.length < 2) return;
+  const cx = (positions[0]!.x + positions[1]!.x) / 2;
+  const cy = (positions[0]!.y + positions[1]!.y) / 2 - 20;
+  const pulse = 1 + Math.sin(frame * 0.18) * 0.15;
+  ctx.fillStyle = '#e94560';
+  const s = 3 * pulse;
+  ctx.fillRect(cx - s, cy - s, s * 2, s * 2);
+  ctx.fillRect(cx - s * 3, cy - s * 0.5, s * 2, s * 2);
+  ctx.fillRect(cx + s, cy - s * 0.5, s * 2, s * 2);
+}
+
+function drawVignettes(ctx: CanvasRenderingContext2D, vignettes: WorldVignette[]): void {
+  for (const v of vignettes) {
+    if (v.kind === 'muster_duffel') drawDuffel(ctx, v.x, v.y, v.age);
+  }
 }
 
 function drawTopHud(ctx: CanvasRenderingContext2D, w: number, vs: GameViewState): void {
@@ -269,7 +377,7 @@ export function drawGameFrame(
 
   drawTopHud(ctx, w, vs);
   drawTerrain(ctx, w, vs.frame);
-  drawWorldBuildings(ctx, vs.frame);
+  drawWorldBuildings(ctx, vs.frame, vs);
 
   ctx.font = '6px monospace';
   ctx.fillStyle = 'rgba(212,160,23,0.5)';
@@ -278,6 +386,9 @@ export function drawGameFrame(
     if (z.id === 'deploy_pad') continue;
     ctx.fillText(z.label, z.x, z.y + 28);
   }
+
+  drawVignettes(ctx, vs.vignettes);
+  drawMusterHearts(ctx, vs.soldiers, entities, vs.frame);
 
   const sorted = [...vs.soldiers].sort((a, b) => {
     const ea = entities.get(a.id);
@@ -290,14 +401,14 @@ export function drawGameFrame(
     if (!e) continue;
     const pal = paletteFor(s.branch);
     const grid = spriteForActivity(s.activity, s.stage);
-    const sx = Math.round(e.x - 14);
-    const sy = Math.round(e.y - 28);
+    const sx = Math.round(e.x - 21);
+    const sy = Math.round(e.y - 42);
 
     if (vs.selected.has(s.id)) {
       ctx.strokeStyle = '#d4a017';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y + 4, 12, 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y + 6, 16, 6, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
 
@@ -310,7 +421,7 @@ export function drawGameFrame(
 
     if (s.stage !== 'specialist') {
       ctx.fillStyle = '#87ceeb';
-      ctx.fillText(s.stage.slice(0, 3).toUpperCase(), e.x, sy + 34);
+      ctx.fillText(s.stage.slice(0, 3).toUpperCase(), e.x, sy + 52);
     }
   }
 
@@ -328,11 +439,14 @@ export function hitTestSoldier(
   for (const s of soldiers) {
     const e = entities.get(s.id);
     if (!e) continue;
-    const d = Math.hypot(px - e.x, py - (e.y - 8));
+    const d = Math.hypot(px - e.x, py - (e.y - 10));
     if (d < HIT_R && (!best || d < best.d)) best = { id: s.id, d };
   }
   return best?.id ?? null;
 }
+
+export { hitTestBuilding } from './world-map';
+export type { BuildingHit } from './world-map';
 
 export function hitTestHudButton(buttons: HudButton[], px: number, py: number): HudAction | null {
   for (const btn of buttons) {

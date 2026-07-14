@@ -20,12 +20,14 @@ import {
   canvasCoords,
   defaultButtons,
   drawGameFrame,
+  hitTestBuilding,
   hitTestHudButton,
   hitTestSoldier,
   updateWorldEntities,
   type GameViewSoldier,
   type GameViewState,
   type HudAction,
+  type WorldVignette,
 } from './game-view';
 import {
   activeStrength,
@@ -46,7 +48,8 @@ import {
 } from './sim';
 import { clearSave, loadBundle, normalizeGameState, saveBundle } from './storage';
 import { soldierActivity } from './visuals';
-import type { WorldEntity } from './world-map';
+import type { BuildingHit, WorldEntity } from './world-map';
+import { ZONES } from './world-map';
 
 const BRIEF_KEY = 'mustermill-brief-seen-v1';
 const TIP_INTERVAL_MS = 18_000;
@@ -66,6 +69,8 @@ let prevSlips = 0;
 let prevMissionEnd: number | null = null;
 let currentTip = '';
 const worldEntities = new Map<number, WorldEntity>();
+const vignettes: WorldVignette[] = [];
+const VIGNETTE_MAX_AGE = 120;
 
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 const toast = document.getElementById('toast')!;
@@ -129,7 +134,26 @@ function buildViewState(): GameViewState {
     buttons,
     missionLeft,
     deployReady: deployCheck.ok,
+    kpActive: onMission,
+    vignettes: vignettes.map((v) => ({ ...v })),
   };
+}
+
+function spawnMusterVignette(): void {
+  const heritage = ZONES.find((z) => z.id === 'heritage_muster');
+  vignettes.push({
+    kind: 'muster_duffel',
+    x: heritage?.x ?? 268,
+    y: (heritage?.y ?? 138) - 8,
+    age: 0,
+  });
+}
+
+function tickVignettes(): void {
+  for (let i = vignettes.length - 1; i >= 0; i--) {
+    vignettes[i]!.age += 1;
+    if (vignettes[i]!.age > VIGNETTE_MAX_AGE) vignettes.splice(i, 1);
+  }
 }
 
 function renderBranchPicker(): void {
@@ -205,6 +229,7 @@ function handleAction(action: HudAction): void {
       }
       state.current = startPair(state.current, ids[0]!, ids[1]!, branchSlug);
       selected.clear();
+      spawnMusterVignette();
       showToast(pairStartMessage(branchSlug));
       persistSoon();
       break;
@@ -256,12 +281,38 @@ function handleAction(action: HudAction): void {
   }
 }
 
+function handleBuilding(building: BuildingHit): void {
+  switch (building.action) {
+    case 'muster':
+      if (selected.size !== 2) {
+        showToast('Select two specialists, then tap Heritage or MUSTER.');
+        return;
+      }
+      handleAction('muster');
+      break;
+    case 'kp':
+      handleAction('kp');
+      break;
+    case 'deploy':
+      handleAction('deploy');
+      break;
+    case 'hint':
+      if (building.hint) showToast(building.hint);
+      break;
+  }
+}
+
 function onCanvasPointer(clientX: number, clientY: number): void {
   const { x, y } = canvasCoords(canvas, clientX, clientY);
   const vs = buildViewState();
   const hudHit = hitTestHudButton(vs.buttons, x, y);
   if (hudHit) {
     handleAction(hudHit);
+    return;
+  }
+  const building = hitTestBuilding(x, y);
+  if (building) {
+    handleBuilding(building);
     return;
   }
   const soldierId = hitTestSoldier(worldEntities, vs.soldiers, x, y);
@@ -325,6 +376,7 @@ function gameLoop(): void {
   const delta = now - lastTick;
   lastTick = now;
   animFrame += 1;
+  tickVignettes();
 
   state.current = advanceGrowth(state.current, delta);
   state.current = tick(state.current, now);
